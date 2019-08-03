@@ -1,0 +1,28 @@
+{
+    "name": "jve/jv-ranking",
+    "type": "typo3-cms-extension",
+    "description": "Sort Vorganizer by options list",
+    "authors": [
+        {
+            "name": "Amerigo Vellett",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "typo3/cms-core": "^8.7.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "JVE\\JvRanking\\": "Classes"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JVE\\JvRanking\\Tests\\": "Tests"
+        }
+    },
+    "replace": {
+        "jv_ranking": "self.version",
+        "typo3-ter/jv-ranking": "self.version"
+    }
+}

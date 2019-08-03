@@ -1,0 +1,52 @@
+{namespace jve=JVE\JvEvents\ViewHelpers}
+
+<html xmlns:f="https://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+	<f:layout name="Default" />
+
+	<f:section name="content">
+		<f:flashMessages />
+
+		<div  class="tx_jvranking" >
+			<f:form class="form-horizontal"  action="save" name="ranking" id="jv_ranking_form">
+				<div class="alert alert-secondary px-3 py-1 mt-3">
+					<h3>Your ID: U-{user.uid}-O-{organizer.uid}-P-{organizer.pid}</h3>
+				</div>
+				<f:for each="{questions}" as="question">
+
+					<div class="row my-3">
+
+						<div class="col-1">
+							<button data-toggle="modal" data-target="#jv-rangingdesc-{question.uid}" class="btn btn-primary btn-xs " href="#">
+								<i class="fas fa-question-circle "> </i>
+							</button>
+						</div>
+						<div class="col-6">{question.question} {question.answer.readOnly} </div>
+
+						<div class="col-2">
+							<input name="tx_jvranking_pi1[questions][{question.uid}]"  {question.answer.readOnly} type="checkbox" {f:if(condition: '{question.answer.answer}' , then : 'checked' )} data-onstyle="primary" data-offstyle="secondary" data-toggle="toggle" data-style="ios ">
+						</div>
+						<div class="col-3">
+							<f:if condition="{question.answer.date}">
+								<f:format.date format="d.m.Y H:i:s">{question.answer.date}</f:format.date>
+							</f:if>
+
+						</div>
+					</div>
+					<f:render partial="Helper/Bootstrap4/Modal" arguments="{'modalId':  'jv-rangingdesc-{question.uid}', 'modalTitle': 'description', 'modalBody': question.description,'modalFooter': '',  'settings': settings}" />
+
+				</f:for>
+
+				<div class="text-right">
+					<f:form.submit class="btn btn-primary" value="{f:translate(key: 'form.save', default: 'Save')}" />
+				</div>
+			</f:form>
+
+
+			<div class="alert alert-secondary px-3 py-1 mt-3">
+
+				<div class="small">Ranking Position Value: {organizer.sorting}</div>
+			</div>
+		</div>
+
+	</f:section>
+</html>

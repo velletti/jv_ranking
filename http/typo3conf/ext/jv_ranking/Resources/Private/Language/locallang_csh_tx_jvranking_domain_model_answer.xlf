@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2019-07-28T15:05:16Z" product-name="jv_ranking">
+		<header/>
+		<body>
+			<trans-unit id="answer.description">
+				<source>answer</source>
+			</trans-unit>
+			<trans-unit id="organizer_uid.description">
+				<source>organizerUid</source>
+			</trans-unit>
+			<trans-unit id="question.description">
+				<source>question</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
