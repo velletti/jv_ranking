@@ -31,9 +31,9 @@
 					<div class="row my-3">
 
 						<div class="col-1">
-							<button data-toggle="modal" data-target="#jv-rangingdesc-{question.uid}" class="btn {f:if(condition: question.answer.date, then: 'btn-outline-primary' , else: 'btn-primary')}  btn-xs " href="#">
+							<span data-toggle="modal" data-target="#jv-rangingdesc-{question.uid}" class="btn {f:if(condition: question.answer.date, then: 'btn-outline-primary' , else: 'btn-primary')}  btn-xs " href="#">
 								<i class="fas fa-question-circle "> </i>
-							</button>
+							</span>
 						</div>
 						<div class="col-6 {f:if(condition: question.answer.date , else: 'font-weight-bold')} {f:if(condition: question.answer.readOnly , then: 'font-weight-light font-italic' )} {f:if(condition: question.hidden , then: 'font-weight-lighter')} ">
 							{question.question}  {f:if(condition: question.answer.readOnly , then: '({question.answer.readOnly})')}
@@ -62,7 +62,7 @@
 
 						</div>
 					</div>
-					<f:render partial="Helper/Bootstrap4/Modal" arguments="{'modalId':  'jv-rangingdesc-{question.uid}', 'modalTitle': 'description', 'modalBody': question.description,'modalFooter': '',  'settings': settings}" />
+					<f:render partial="Helper/Bootstrap4/Modal" arguments="{'modalId':  'jv-rangingdesc-{question.uid}', 'modalTitle': 'Erläuterung', 'modalBody': question.description, 'modalFooter': '',  'settings': settings}" />
 
 				</f:for>
 

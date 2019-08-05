@@ -48,6 +48,14 @@ class Question extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
  */
     protected $value = 0;
 
+
+    /**
+     * value
+     *
+     * @var int
+     */
+    protected $tstamp ;
+
     /**
      * value
      *
@@ -252,6 +260,15 @@ class Question extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     {
         $this->vaidUntil = $vaidUntil;
     }
+
+    /**
+     * @return int
+     */
+    public function getTstamp()
+    {
+        return $this->tstamp;
+    }
+
 
 
 
