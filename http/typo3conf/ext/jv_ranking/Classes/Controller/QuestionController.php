@@ -44,7 +44,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
 
         $querysettings = new \TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings ;
         // toDo set storage Pid here
-        $querysettings->setStoragePageIds(array( 48 )) ;
+        $querysettings->setStoragePageIds(array( 52 )) ;
         $this->answerRepository->setDefaultQuerySettings( $querysettings );
 
         $querysettings->setIgnoreEnableFields(TRUE) ;
@@ -130,7 +130,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
 
         $querysettings = new \TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings ;
         // toDo set storage Pid here
-        $querysettings->setStoragePageIds(array( 48 )) ;
+        $querysettings->setStoragePageIds(array( 52 )) ;
         $this->questionRepository->setDefaultQuerySettings( $querysettings );
 
         $querysettings->setIgnoreEnableFields(TRUE) ;
@@ -186,7 +186,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                     $debug .= "\n Answer Added: " . $questionObj->getQuestion() ;
                     $totalValue = $totalValue + $questionObj->getValue() ;
 
-                    $newAnswer->setPid(48) ;
+                    $newAnswer->setPid(52) ;
                     $newAnswer->setOrganizerUid($organizer->getUid()) ;
                     $newAnswer->setQuestion($questionObj) ;
                     $newAnswer->setAnswer( 1 ) ;
