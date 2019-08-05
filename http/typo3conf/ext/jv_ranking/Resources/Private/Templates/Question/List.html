@@ -63,7 +63,7 @@
 						</div>
 					</div>
 					<f:variable name="modalBody">
-						<f:format.nl2br>question.description</f:format.nl2br>
+						<f:format.nl2br>{question.description}</f:format.nl2br>
 					</f:variable>
 					<f:render partial="Helper/Bootstrap4/Modal" arguments="{'modalId':  'jv-rangingdesc-{question.uid}', 'modalTitle': 'Erläuterung', 'modalBody': modalBody, 'modalFooter': '',  'settings': settings}" />
 
