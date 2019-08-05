@@ -42,11 +42,25 @@ class Question extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
 
 
     /**
+ * value
+ *
+ * @var int
+ */
+    protected $value = 0;
+
+    /**
      * value
      *
      * @var int
      */
-    protected $value = 0;
+    protected $hidden = 0;
+
+    /**
+     * value
+     *
+     * @var int
+     */
+    protected $validUntil = 30 ;
 
     /**
      * Returns the question
@@ -126,6 +140,119 @@ class Question extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     {
         $this->answer = $answer;
     }
+
+    /**
+     * @return int
+     */
+    public function getUid()
+    {
+        return $this->uid;
+    }
+
+    /**
+     * @param int $uid
+     */
+    public function setUid($uid)
+    {
+        $this->uid = $uid;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLocalizedUid()
+    {
+        return $this->_localizedUid;
+    }
+
+    /**
+     * @param int $localizedUid
+     */
+    public function setLocalizedUid($localizedUid)
+    {
+        $this->_localizedUid = $localizedUid;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLanguageUid()
+    {
+        return $this->_languageUid;
+    }
+
+    /**
+     * @param int $languageUid
+     */
+    public function setLanguageUid($languageUid)
+    {
+        $this->_languageUid = $languageUid;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPid()
+    {
+        return $this->pid;
+    }
+
+    /**
+     * @param int $pid
+     */
+    public function setPid($pid)
+    {
+        $this->pid = $pid;
+    }
+
+    /**
+     * @return int
+     */
+    public function getHidden()
+    {
+        return $this->hidden;
+    }
+
+    /**
+     * @param int $hidden
+     */
+    public function setHidden($hidden)
+    {
+        $this->hidden = $hidden;
+    }
+
+    /**
+     * @return int
+     */
+    public function getValidUntil()
+    {
+        return $this->validUntil;
+    }
+
+    /**
+     * @param int $validUntil
+     */
+    public function setValidUntil($validUntil)
+    {
+        $this->validUntil = $validUntil;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVaidUntil()
+    {
+        return $this->vaidUntil;
+    }
+
+    /**
+     * @param int $vaidUntil
+     */
+    public function setVaidUntil($vaidUntil)
+    {
+        $this->vaidUntil = $vaidUntil;
+    }
+
 
 
 

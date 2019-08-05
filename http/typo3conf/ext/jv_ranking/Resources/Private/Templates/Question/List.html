@@ -11,19 +11,49 @@
 				<div class="alert alert-secondary px-3 py-1 mt-3">
 					<h3>Your ID: U-{user.uid}-O-{organizer.uid}-P-{organizer.pid}</h3>
 				</div>
+				<div class="row my-3 bg-gradient-secondary  text-white font-weight-bold">
+
+					<div class="col-1">
+
+					</div>
+					<div class="col-6">Deine Festlegung </div>
+
+					<div class="col-2">
+						Status
+					</div>
+					<div class="col-3">
+						Letzte Änderung
+					</div>
+				</div>
+
 				<f:for each="{questions}" as="question">
 
 					<div class="row my-3">
 
 						<div class="col-1">
-							<button data-toggle="modal" data-target="#jv-rangingdesc-{question.uid}" class="btn btn-primary btn-xs " href="#">
+							<button data-toggle="modal" data-target="#jv-rangingdesc-{question.uid}" class="btn {f:if(condition: question.answer.date, then: 'btn-outline-primary' , else: 'btn-primary')}  btn-xs " href="#">
 								<i class="fas fa-question-circle "> </i>
 							</button>
 						</div>
-						<div class="col-6">{question.question} {question.answer.readOnly} </div>
+						<div class="col-6 {f:if(condition: question.answer.date , else: 'font-weight-bold')} {f:if(condition: question.answer.readOnly , then: 'font-weight-light font-italic' )} {f:if(condition: question.hidden , then: 'font-weight-lighter')} ">
+							{question.question}  {f:if(condition: question.answer.readOnly , then: '({question.answer.readOnly})')}
+						</div>
 
-						<div class="col-2">
-							<input name="tx_jvranking_pi1[questions][{question.uid}]"  {question.answer.readOnly} type="checkbox" {f:if(condition: '{question.answer.answer}' , then : 'checked' )} data-onstyle="primary" data-offstyle="secondary" data-toggle="toggle" data-style="ios ">
+						<div class="col-2 jv-ranking{question.answer.readOnly}" >
+							<f:if condition="{question.answer.readOnly}">
+
+								<f:then>
+									<span class="h-100 w-100 d-inline-block position-absolute" style="z-index: 9999" onclick="return true;"></span>
+									<input name="tx_jvranking_pi1[questions][{question.uid}]"  {question.answer.readOnly} type="checkbox" {f:if(condition: '{question.answer.answer}' , then : 'checked' )} data-onstyle="primary" data-offstyle="secondary" data-toggle="toggle" data-style="ios ">
+
+								</f:then>
+								<f:else>
+									<input name="tx_jvranking_pi1[questions][{question.uid}]"  {question.answer.readOnly} type="checkbox" {f:if(condition: '{question.answer.answer}' , then : 'checked' )} data-onstyle="success" data-offstyle="secondary" data-toggle="toggle" data-style="ios ">
+
+								</f:else>
+							</f:if>
+
+
 						</div>
 						<div class="col-3">
 							<f:if condition="{question.answer.date}">

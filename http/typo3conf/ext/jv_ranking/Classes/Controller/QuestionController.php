@@ -45,6 +45,9 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $querysettings = new \TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings ;
         // toDo set storage Pid here
         $querysettings->setStoragePageIds(array( 48 )) ;
+        $this->answerRepository->setDefaultQuerySettings( $querysettings );
+
+        $querysettings->setIgnoreEnableFields(TRUE) ;
         $this->questionRepository->setDefaultQuerySettings( $querysettings );
 
 
@@ -57,18 +60,26 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
             if ( $answer) {
                 $ansers ++ ;
                 $arr = array( "answer" => $answer->getAnswer() ,  'date' => $answer->getStarttime() ) ;
-                if( $answer->getStarttime() > mktime( 0 , 0 , 0 ,-1 , date("d") , date("Y"))) {
+
+                if( $answer->getStarttime() > time() ) {
                     $arr['readOnly'] = 'readonly';
                 }
-                $question->setAnswer( $arr  ) ;
+
+
             } else {
-                $question->setAnswer( array() ) ;
+                $arr = array() ;
+                if( $question->getHidden() ) {
+                    $arr['readOnly'] = 'readonly';
+                }
+
             }
+            $question->setAnswer( $arr  ) ;
         }
         $this->view->assign('ansers', $ansers);
         $this->view->assign('count', count( $questions));
         $this->view->assign('questions', $questions);
         $this->view->assign('organizer', $organizer);
+        $this->view->assign('user',  $GLOBALS['TSFE']->fe_user->user );
     }
 
     /**
@@ -105,17 +116,24 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         if ( $this->request->hasArgument("questions") ) {
             $questions = $this->request->getArgument("questions") ;
         }
-        echo "<pre>" ;
-        var_dump($questions) ;
-
-
+        /** @var \JVE\JvEvents\Domain\Model\Organizer $organizer */
         $organizer = $this->getOrganizer();
+
+        $debug = "\n ***************************************************" . "\n" ."Organizer: " . $organizer->getUid() . " - " . $organizer->getEmail()
+            . " Old Sorting: " . $organizer->getSorting() ;
+        $debug = "\n ***************************************************" ;
+        $answerCount = 0 ;
+        if( is_array($questions )) {
+            $answerCount = count($questions);
+        }
+
 
         $querysettings = new \TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings ;
         // toDo set storage Pid here
         $querysettings->setStoragePageIds(array( 48 )) ;
-
         $this->questionRepository->setDefaultQuerySettings( $querysettings );
+
+        $querysettings->setIgnoreEnableFields(TRUE) ;
         $this->answerRepository->setDefaultQuerySettings( $querysettings );
 
         $totalValue = 0 ;
@@ -123,21 +141,24 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         /** @var \JVE\JvRanking\Domain\Model\Answer $answer */
         foreach ( $answers as $key => $answer ) {
             $answerIsUpdated = false ;
-            if( $answer->getStarttime() < mktime( 0 , 0 , 0 ,-1 , date("d") , date("Y"))) {
-                // answer is older than 30 days and may be changed
+            $answQuestion = $answer->getQuestion() ;
+            if( $answer->getStarttime() < time() ) {
+                // answer is older than valid_unitl Days days and may be changed
                 if( is_array($questions )) {
                     foreach ( $questions as $id =>  $value) {
                         // check if answer is in array of new answer
-                        if( $answer->getQuestion()->getUid() == $id ) {
-                            $totalValue = $totalValue + $answer->getQuestion()->getValue() ;
-                            $answer->setStarttime( time() ) ;
-                            $answerIsUpdated = true ;
+                        if( $answQuestion->getUid() == $id ) {
+                            $debug .= "\n Answer Updated: " . $answQuestion->getQuestion() ;
+                            $totalValue = $totalValue + $answQuestion->getValue() ;
+                            $answer->setStarttime( time() + ( $answQuestion->getVaidUntil() *3600 * 24 ) ) ;
+                            $answerIsUpdated = $this->answerRepository->update( $answer ) ;
                             unset( $questions[$id] ) ;
                         }
                     }
                 }
                 // answer does not exist anymore in response
                 if( !$answerIsUpdated ) {
+                    $debug .= "\n Answer removed: " . $answer->getQuestion()->getQuestion() ;
                     $this->answerRepository->remove($answer) ;
                 }
             } else {
@@ -153,20 +174,23 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                 }
             }
 
+
         }
         if( is_array($questions )) {
             foreach ( $questions as $id =>  $value) {
                 /** @var \JVE\JvRanking\Domain\Model\Answer $newAnswer */
                 $newAnswer = $this->objectManager->get( "JVE\\JvRanking\\Domain\\Model\\Answer")  ;
-                $question = $this->questionRepository->findOneByUid($id ) ;
-                if( is_object( $question )) {
-                    $totalValue = $totalValue + $question->getValue() ;
-                    echo "<br>id/ vlaue: " . $id . "/" . $value ;
+                /** @var \JVE\JvRanking\Domain\Model\Question $questionObj */
+                $questionObj = $this->questionRepository->findOneByUid($id ) ;
+                if( is_object( $questionObj )) {
+                    $debug .= "\n Answer Added: " . $questionObj->getQuestion() ;
+                    $totalValue = $totalValue + $questionObj->getValue() ;
+
                     $newAnswer->setPid(48) ;
                     $newAnswer->setOrganizerUid($organizer->getUid()) ;
-                    $newAnswer->setQuestion($question) ;
+                    $newAnswer->setQuestion($questionObj) ;
                     $newAnswer->setAnswer( 1 ) ;
-                    $newAnswer->setStarttime( time() ) ;
+                    $newAnswer->setStarttime( time() + ( $questionObj->getValidUntil() *3600 * 24 ) ) ;
 
                     $this->answerRepository->add($newAnswer) ;
                 }
@@ -176,17 +200,104 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                 unset($newAnswer) ;
             }
         }
+        $debug .= "\n ***************************************************" ;
+        $debug .= "\n now calculating the New sorting value" ;
 
-        // Todo  $totalValue korrekt berechnen
-         $organizer->setSorting($totalValue) ;
+
+        $allQuestions = $this->questionRepository->findAll()->toArray() ;
+        $allAnswers= 0 ;
+        $allAnswersPoint = 0 ;
+        $allHiddenAnswers = 0 ;
+        /** @var \JVE\JvRanking\Domain\Model\Question $singleQuestion */
+        foreach ( $allQuestions as $key => $singleQuestion ) {
+            $allAnswersPoint = $allAnswersPoint + $singleQuestion->getValue() ;
+            if( $singleQuestion->gethidden()) {
+                $allHiddenAnswers ++ ;
+            }
+            $allAnswers ++ ;
+        }
+        $debug .= "\n" . "Possible Points: " . $allAnswersPoint ;
+        $debug .= "\n" . "Possible Answers: " . $allAnswers ;
+        $debug .= "\n" . "Hidden Bonus: " . ($allAnswers * $allAnswers * $allAnswers ) ;
+        $debug .= "\n" . "Hidden Answers: " . $allHiddenAnswers ;
+        $debug .= "\n ***************************************************" ;
+        $crYear = date( "Y" , $organizer->getCrdate() ) ;
+        $debug .= "\n" . "crYear: " . $crYear ;
+        // wir starten bei 5015 bzw. bei neuen <Veranstaltern derzeit dann bei 510 .
+        $base = ( $crYear - 1000 )  * 5 ;
+        $debug .= "\n" . "New Base: " . $base ;
+        $debug .= "\n" . "TotalValue: " . $totalValue ;
+
+
+
+        // dann ziehen wir die Antworten ab und , je mehr anworten, um so höher der Bonus
+        $newSorting = intval(  $base - $totalValue ) ;
+        $debug .= "\n" . "NewSorting: " . $newSorting ;
+        $debug .= "\n" . "AnserCount: " . $answerCount  . " = $answerCount ^3 ";
+        $newSorting = $newSorting - ( $answerCount * $answerCount * $answerCount )  ;
+        $debug .= "\n" . "NewSorting: " . $newSorting ;
+
+        // hat der User die manuelle Gruppe VIP ? macht 100 Punkte Bonus
+        if( $this->hasUserGroup( 3 )) {
+            $newSorting = $newSorting - 100 ;
+            $debug .= "\n" . "user Is VIP : " . $newSorting ;
+        }
+        $filter['organizer'] = $organizer->getUid() ;
+        $filter['startDate'] = -100 ;
+        $filter['maxDays'] = 365 ;
+
+        // Veranstalter mit vielen Events bekommen noch mal einen Bonus
+        $events = $this->eventRepository->findByFilter($filter ) ;
+        $eventCount = count( $events) ;
+        $debug .= "\n" . "Event Count: max 100 : " .  $eventCount  ;
+        $newSorting = $newSorting - min( $eventCount , 100 ) ;
+        $debug .= "\n" . "NewSorting: " . $newSorting ;
+
+        // tanz events noch mal bewerten
+        $filter['categories'] = "1," ;
+        $events = $this->eventRepository->findByFilter($filter ) ;
+        $eventCount = count( $events) ;
+        $debug .= "\n" . "Dance Event Count: max 50 : " .  $eventCount  ;
+        $newSorting = $newSorting - min( $eventCount , 50 ) ;
+        $debug .= "\n" . "NewSorting: " . $newSorting ;
+
+        // live Musik: muss belohnt werden
+        $filter['tags'] = "4," ;
+        $events = $this->eventRepository->findByFilter($filter ) ;
+        $eventCount = count( $events) ;
+        $debug .= "\n" . "LIVE Musik  Event Count: (max 10 aber 10 fach ): " .  $eventCount  ;
+        $newSorting = $newSorting - ( min( $eventCount , 10 ) * 10 )  ;
+        $debug .= "\n" . "NewSorting: " . $newSorting ;
+
+
+        $categories = $organizer->getOrganizerCategory()->getArray() ;
+        /** @var \JVE\JvEvents\Domain\Model\Category $category */
+        foreach ( $categories as $category ) {
+            $newSorting = $newSorting - ( $category->getUid() *3 )  ;
+            $debug .= "\n" . "Has Category: " .  $category->getUid() . " - " . $category->getTitle()  ;
+        }
+        $debug .= "\n" . " Before Random : " . $newSorting ;
+        $newSorting = $newSorting - date("s") ;
+        $debug .= "\n" . "NewSorting: " . $newSorting ;
+        $debug .= "\n ***************************************************" ;
+        if( $newSorting < 100) {
+            // dann random...
+            $newSorting = 40 + date("s") ;
+            $debug .= "\n" . "NewSorting as was < 100 : " . $newSorting ;
+        }
+
+        $organizer->setSorting( $newSorting ) ;
         // ToDo Free / Silver / Gold neu berechnen .. und Categorien setzen/korrgieren
 
          $this->organizerRepository->update( $organizer) ;
 
 
-
         $this->persistenceManager->persistAll();
+        $this->sendDebugEmail('info@tangomuenchen.de','info@tangomuenchen.de' ,'[Ranking] ' . $organizer->getUid() . " - " . $organizer->getEmail() , $debug ) ;
+
         $this->addFlashMessage("Ranking settings updated! " , "Success" , \TYPO3\CMS\Core\Messaging\AbstractMessage::OK) ;
+
         $this->redirect('list');
     }
+
 }

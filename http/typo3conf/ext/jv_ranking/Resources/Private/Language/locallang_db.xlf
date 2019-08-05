@@ -18,6 +18,9 @@
 			<trans-unit id="tx_jvranking_domain_model_question.answer">
 				<source>Answer</source>
 			</trans-unit>
+            <trans-unit id="tx_jvranking_domain_model_question.valid_until">
+                <source>Number of days this answer will be blocked</source>
+            </trans-unit>
 			<trans-unit id="tx_jvranking_domain_model_answer">
 				<source>Answer</source>
 			</trans-unit>

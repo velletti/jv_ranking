@@ -10,6 +10,7 @@ CREATE TABLE tx_jvranking_domain_model_question (
 	description text,
 	value int(11) DEFAULT '0' NOT NULL,
 	answer int(11) unsigned DEFAULT '0' NOT NULL,
+	valid_until int(11) unsigned DEFAULT '30' NOT NULL,
 
 	tstamp int(11) unsigned DEFAULT '0' NOT NULL,
 	crdate int(11) unsigned DEFAULT '0' NOT NULL,

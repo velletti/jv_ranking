@@ -15,6 +15,9 @@
 			<trans-unit id="answer.description">
 				<source>answer</source>
 			</trans-unit>
+            <trans-unit id="question.valid_until">
+                <source>After dthis number of days, the user can cahnge his answer</source>
+            </trans-unit>
 		</body>
 	</file>
 </xliff>
