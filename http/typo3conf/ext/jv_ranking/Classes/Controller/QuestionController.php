@@ -257,7 +257,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $crYear = date( "Y" , $organizer->getCrdate() ) ;
         $debug .= "\n" . "crYear: " . $crYear ;
         // wir starten bei 5015 bzw. bei neuen <Veranstaltern derzeit dann bei 510 .
-        $base = ( $crYear - 1000 )  * 5 ;
+        $base = ( $crYear - 1000 )  * 10 ;
         $debug .= "\n" . "New Base: " . $base ;
         $debug .= "\n" . "TotalValue: " . $totalValue ;
 
