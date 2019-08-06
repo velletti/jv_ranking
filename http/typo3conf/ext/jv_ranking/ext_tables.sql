@@ -11,6 +11,9 @@ CREATE TABLE tx_jvranking_domain_model_question (
 	value int(11) DEFAULT '0' NOT NULL,
 	answer int(11) unsigned DEFAULT '0' NOT NULL,
 	valid_until int(11) unsigned DEFAULT '30' NOT NULL,
+	event_category int(11) unsigned DEFAULT '0' NOT NULL,
+	tags int(11) unsigned DEFAULT '0' NOT NULL,
+
 
 	tstamp int(11) unsigned DEFAULT '0' NOT NULL,
 	crdate int(11) unsigned DEFAULT '0' NOT NULL,
@@ -62,4 +65,28 @@ CREATE TABLE tx_jvranking_domain_model_answer (
 
 );
 
-## EXTENSION BUILDER DEFAULTS END TOKEN - Everything BEFORE this line is overwritten with the defaults of the extension builder
+#
+#
+CREATE TABLE tx_jvranking_question_category_mm (
+	uid_local int(11) unsigned DEFAULT '0' NOT NULL,
+	uid_foreign int(11) unsigned DEFAULT '0' NOT NULL,
+	sorting int(11) unsigned DEFAULT '0' NOT NULL,
+	sorting_foreign int(11) unsigned DEFAULT '0' NOT NULL,
+
+	KEY uid_local (uid_local),
+	KEY uid_foreign (uid_foreign)
+);
+
+
+#
+#
+CREATE TABLE tx_jvranking_question_tag_mm (
+	uid_local int(11) unsigned DEFAULT '0' NOT NULL,
+	uid_foreign int(11) unsigned DEFAULT '0' NOT NULL,
+	sorting int(11) unsigned DEFAULT '0' NOT NULL,
+	sorting_foreign int(11) unsigned DEFAULT '0' NOT NULL,
+
+	KEY uid_local (uid_local),
+	KEY uid_foreign (uid_foreign)
+);
+

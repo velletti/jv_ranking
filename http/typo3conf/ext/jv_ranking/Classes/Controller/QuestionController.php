@@ -55,20 +55,53 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $ansers = 0 ;
         /** @var \JVE\JvRanking\Domain\Model\Question $question */
         foreach ( $questions as $key => $question ) {
+            $needToCountEvents = false ;
+            $notEnoughEvents = false ;
+            $filter = [] ;
+            $filter['organizer'] = $organizer->getUid() ;
+            $filter['startDate'] = -100 ;
+            $filter['maxDays'] = 365 ;
+
+            $tags = $question->getTags() ;
+            if ( $tags && count( $tags ) > 0 ) {
+                $tags = $tags->getArray() ;
+                if ( is_array($tags)) {
+                    /** @var \JVE\JvEvents\Domain\Model\Tag $tag */
+                    foreach ($tags as $tag) {
+                        $filter['tags'] .= $tag->getUid() . "," ;
+                    }
+                    $needToCountEvents = true ;
+                }
+            }
+            /** @var \JVE\JvEvents\Domain\Model\Category $category */
+            foreach ($question->getEventCategory() as $category ) {
+                if ( is_object( $category )) {
+                    $filter['categories'] .= $category->getUid() . "," ;
+                }
+                $needToCountEvents = true ;
+            }
+            if (  $needToCountEvents  ) {
+                $events = $this->eventRepository->findByFilter($filter ) ;
+                if ( count($events) < 1  ) {
+                    $notEnoughEvents = true ;
+                }
+            }
+
+
             /** @var \JVE\JvRanking\Domain\Model\Answer $answer */
             $answer = $this->answerRepository->getAnswerByOrganizerUid($question->getUid() , $organizer->getUid())->getFirst() ;
             if ( $answer) {
                 $ansers ++ ;
                 $arr = array( "answer" => $answer->getAnswer() ,  'date' => $answer->getStarttime() ) ;
 
-                if( $answer->getStarttime() > time() ) {
+                if( $answer->getStarttime() > time() || $question->getHidden() || $notEnoughEvents) {
                     $arr['readOnly'] = 'readonly';
                 }
 
 
             } else {
                 $arr = array() ;
-                if( $question->getHidden() ) {
+                if( $question->getHidden() || $notEnoughEvents ) {
                     $arr['readOnly'] = 'readonly';
                 }
 
@@ -218,7 +251,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         }
         $debug .= "\n" . "Possible Points: " . $allAnswersPoint ;
         $debug .= "\n" . "Possible Answers: " . $allAnswers ;
-        $debug .= "\n" . "Hidden Bonus: " . ($allAnswers * $allAnswers * $allAnswers ) ;
+        $debug .= "\n" . "possible Bonus: " . ($allAnswers * $allAnswers * 10 ) ;
         $debug .= "\n" . "Hidden Answers: " . $allHiddenAnswers ;
         $debug .= "\n ***************************************************" ;
         $crYear = date( "Y" , $organizer->getCrdate() ) ;
@@ -233,8 +266,8 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         // dann ziehen wir die Antworten ab und , je mehr anworten, um so höher der Bonus
         $newSorting = intval(  $base - $totalValue ) ;
         $debug .= "\n" . "NewSorting: " . $newSorting ;
-        $debug .= "\n" . "AnserCount: " . $answerCount  . " = $answerCount ^3 ";
-        $newSorting = $newSorting - ( $answerCount * $answerCount * $answerCount )  ;
+        $debug .= "\n" . "AnserCount: " . $answerCount  . " = $answerCount * 10 ";
+        $newSorting = $newSorting - ( $answerCount * $answerCount * 10 )  ;
         $debug .= "\n" . "NewSorting: " . $newSorting ;
 
         // hat der User die manuelle Gruppe VIP ? macht 100 Punkte Bonus

@@ -18,10 +18,10 @@ return [
         'iconfile' => 'EXT:jv_ranking/Resources/Public/Icons/tx_jvranking_domain_model_question.gif'
     ],
     'interface' => [
-        'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, question, description, value, answer,valid_until',
+        'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, question, description, value, answer,valid_until,event_category,tags',
     ],
     'types' => [
-        '1' => ['showitem' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, question, description, value, answer , valid_until'],
+        '1' => ['showitem' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, question, description, value, answer , valid_until,event_category,tags'],
     ],
     'columns' => [
         'sys_language_uid' => [
@@ -111,6 +111,87 @@ return [
                 'eval' => 'int'
             ]
         ],
+        'event_category' => array(
+            'exclude' => 0,
+            'label' => 'LLL:EXT:jv_events/Resources/Private/Language/locallang_db.xlf:tx_jvevents_domain_model_event.event_category',
+            'config' => array(
+                'type' => 'select',
+                'renderType' => 'selectMultipleSideBySide',
+                'foreign_table' => 'tx_jvevents_domain_model_category',
+
+                // 'foreign_table_where' => ' AND tx_jvevents_domain_model_category.type = 0 AND tx_jvevents_domain_model_category.sys_language_uid in (-1, 0)',
+                'foreign_table_where' => ' AND tx_jvevents_domain_model_category.type = 0 AND (tx_jvevents_domain_model_category.sys_language_uid = 0 OR tx_jvevents_domain_model_category.l10n_parent = 0) ORDER BY tx_jvevents_domain_model_category.title',
+                'itemsProcFunc' => 'JVE\\JvEvents\\UserFunc\\Flexforms->TranslateMMvalues' ,
+
+                'MM' => 'tx_jvranking_question_category_mm',
+                'size' => 10,
+                'autoSizeMax' => 30,
+                'maxitems' => 9999,
+                'multiple' => 0,
+
+                'fieldControl' => array(
+                    'addRecord' => array(
+                        'disabled' => false ,
+                        'options' => array(
+                            'pid' => '###CURRENT_PID###' ,
+                            'setValue' => 'prepend' ,
+                            'icon' => 'actions-add',
+                            'table' => 'tx_jvevents_domain_model_category' ,
+                            'title' => 'Create new' ,
+                        ),
+
+                    ) ,
+                    'editPopup' => array(
+                        'disabled' => false ,
+                        'options' => array(
+                            'icon' => 'actions-open',
+                            'windowOpenParameters' => 'height=350,width=580,status=0,menubar=0,scrollbars=1' ,
+                            'title' => 'Edit' ,
+                        ),
+                    ) ,
+                ) ,
+
+            ),
+        ),
+        'tags' => array(
+            'exclude' => 0,
+            'label' => 'LLL:EXT:jv_events/Resources/Private/Language/locallang_db.xlf:tx_jvevents_domain_model_event.tags',
+            'config' => array(
+                'type' => 'select',
+                'renderType' => 'selectMultipleSideBySide',
+                'foreign_table' => 'tx_jvevents_domain_model_tag',
+                //'foreign_table_where' => ' AND tx_jvevents_domain_model_tag.sys_language_uid in (-1, ###REC_FIELD_sys_language_uid###)',
+                'itemsProcFunc' => 'JVE\\JvEvents\\UserFunc\\Flexforms->TranslateMMvalues' ,
+                'foreign_table_where' => ' AND (tx_jvevents_domain_model_tag.sys_language_uid = 0 OR ( tx_jvevents_domain_model_tag.l10n_parent = 0 AND tx_jvevents_domain_model_tag.sys_language_uid in (-1, ###REC_FIELD_sys_language_uid###) )) ORDER BY tx_jvevents_domain_model_tag.name',
+
+                'MM' => 'tx_jvranking_question_tag_mm',
+                'size' => 10,
+                'autoSizeMax' => 30,
+                'maxitems' => 9999,
+                'multiple' => 0,
+                'fieldControl' => array(
+                    'addRecord' => array(
+                        'disabled' => false ,
+                        'options' => array(
+                            'pid' => '###CURRENT_PID###' ,
+                            'setValue' => 'prepend' ,
+                            'icon' => 'actions-add',
+                            'table' => 'tx_jvevents_domain_model_tag' ,
+                            'title' => 'Create new' ,
+                        ),
+
+                    ) ,
+                    'editPopup' => array(
+                        'disabled' => false ,
+                        'options' => array(
+                            'icon' => 'actions-open',
+                            'windowOpenParameters' => 'height=350,width=580,status=0,menubar=0,scrollbars=1' ,
+                            'title' => 'Edit' ,
+                        ),
+                    ) ,
+                ) ,
+            ),
+        ),
 
     ],
 ];

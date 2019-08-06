@@ -33,6 +33,22 @@ class Question extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     protected $description = '';
 
     /**
+     * eventCategory
+     *
+     * @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage<\JVE\JvEvents\Domain\Model\Category>
+     */
+    protected $eventCategory = null;
+
+    /**
+     * tags
+     *
+     * @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage<\JVE\JvEvents\Domain\Model\Tag>
+     */
+    protected $tags = null;
+
+
+
+    /**
      * Answer temporar Array
      *
      * @var array
@@ -70,6 +86,19 @@ class Question extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      */
     protected $validUntil = 30 ;
 
+
+
+    /**
+     * Initializes all ObjectStorage properties
+     *
+     * @return void
+     */
+    protected function initStorageObjects()
+    {
+        $this->eventCategory = new \TYPO3\CMS\Extbase\Persistence\ObjectStorage();
+        $this->tags = new \TYPO3\CMS\Extbase\Persistence\ObjectStorage();
+
+    }
     /**
      * Returns the question
      *
@@ -270,6 +299,92 @@ class Question extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     }
 
 
+
+    /**
+     * Adds a Category
+     *
+     * @param \JVE\JvEvents\Domain\Model\Category $eventCategory
+     * @return void
+     */
+    public function addEventCategory(\JVE\JvEvents\Domain\Model\Category $eventCategory)
+    {
+        $this->eventCategory->attach($eventCategory);
+    }
+
+    /**
+     * Removes a Category
+     *
+     * @param \JVE\JvEvents\Domain\Model\Category $eventCategoryToRemove The Category to be removed
+     * @return void
+     */
+    public function removeEventCategory(\JVE\JvEvents\Domain\Model\Category $eventCategoryToRemove)
+    {
+        $this->eventCategory->detach($eventCategoryToRemove);
+    }
+
+    /**
+     * Returns the eventCategory
+     *
+     * @return \TYPO3\CMS\Extbase\Persistence\ObjectStorage<\JVE\JvEvents\Domain\Model\Category> $eventCategory
+     */
+    public function getEventCategory()
+    {
+        return $this->eventCategory;
+    }
+
+    /**
+     * Sets the eventCategory
+     *
+     * @param \TYPO3\CMS\Extbase\Persistence\ObjectStorage<\JVE\JvEvents\Domain\Model\Category> $eventCategory
+     * @return void
+     */
+    public function setEventCategory(\TYPO3\CMS\Extbase\Persistence\ObjectStorage $eventCategory)
+    {
+        $this->eventCategory = $eventCategory;
+    }
+
+    /**
+     * Adds a Tag
+     *
+     * @param \JVE\JvEvents\Domain\Model\Tag $tag
+     * @return void
+     */
+    public function addTag(\JVE\JvEvents\Domain\Model\Tag $tag)
+    {
+        $this->tags->attach($tag);
+    }
+
+    /**
+     * Removes a Tag
+     *
+     * @param \JVE\JvEvents\Domain\Model\Tag $tagToRemove The Tag to be removed
+     * @return void
+     */
+    public function removeTag(\JVE\JvEvents\Domain\Model\Tag $tagToRemove)
+    {
+        $this->tags->detach($tagToRemove);
+    }
+
+    /**
+     * Returns the tags
+     *
+     * @return \TYPO3\CMS\Extbase\Persistence\ObjectStorage<\JVE\JvEvents\Domain\Model\Tag> $tags
+     */
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+    /**
+     * Sets the tags
+     *
+     * @param \TYPO3\CMS\Extbase\Persistence\ObjectStorage<\JVE\JvEvents\Domain\Model\Tag> $tags
+     * @return void
+     */
+    public function setTags(\TYPO3\CMS\Extbase\Persistence\ObjectStorage $tags)
+    {
+        $this->tags = $tags;
+    }
 
 
 
