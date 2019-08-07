@@ -4,7 +4,9 @@
 	<f:layout name="Default" />
 
 	<f:section name="content">
-		<f:flashMessages />
+		<div class="list-unstyled">
+			<f:flashMessages />
+		</div>
 
 		<div  class="tx_jvranking" >
 			<f:form class="form-horizontal"  action="save" name="ranking" id="jv_ranking_form">
@@ -15,7 +17,7 @@
 					</div>
 					<div class="col-9 com-sm-6 col-md-7">Deine Festlegung </div>
 					<div class="ol-6 offset-3 col-sm-6 offset-sm-2 col-md-2 offset-md-0">
-						Letzte Änderung
+						Gültig bis
 					</div>
 					<div class="col-3 col-sm-2">
 						Status
@@ -25,14 +27,14 @@
 
 				<f:for each="{questions}" as="question">
 
-					<div class="row my-3">
+					<div class="row my-3 {f:if(condition: question.answer.readOnly, then: ' opacity-2')} {f:if(condition: question.hidden , then: ' opacity-1')}">
 
 						<div class="col-3 col-sm-2 col-md-1">
 							<span data-toggle="modal" data-target="#jv-rangingdesc-{question.uid}" class="btn {f:if(condition: question.answer.date, then: 'btn-outline-primary' , else: 'btn-primary')}  btn-xs " href="#">
 								<i class="fas fa-question-circle "> </i>
 							</span>
 						</div>
-						<div class="col-9 com-sm-8 col-md-7 {f:if(condition: question.answer.date , else: 'font-weight-bold')} {f:if(condition: question.answer.readOnly , then: 'font-weight-light font-italic' )} {f:if(condition: question.hidden , then: 'font-weight-lighter')} ">
+						<div class="col-9 com-sm-8 col-md-7 {f:if(condition: question.answer.date , else: 'font-weight-bold')} {f:if(condition: question.answer.readOnly , then: 'font-weight-light font-italic' )} ">
 							{question.question}  {f:if(condition: question.answer.readOnly , then: '({question.answer.readOnly})')}
 						</div>
 						<div class="col-6 offset-3 col-sm-6 offset-sm-2 col-md-2 offset-md-0">
@@ -55,14 +57,28 @@
 
 					</div>
 					<f:variable name="modalBody">
-						<f:format.nl2br>{question.description}</f:format.nl2br>
+						<f:format.nl2br>{question.description}
+						</f:format.nl2br>
+						<br>
+						<br>
+						<b>Hinweis:</b><br>Nach dem Speichern gültig für {question.validUntil} Tage
 					</f:variable>
 					<f:render partial="Helper/Bootstrap4/Modal" arguments="{'modalId':  'jv-rangingdesc-{question.uid}', 'modalTitle': 'Erläuterung', 'modalBody': modalBody, 'modalFooter': '',  'settings': settings}" />
 				</f:for>
+				<f:if condition="{changeableAnswers}">
+					<f:then>
+						<div class="text-left col-auto alert alert-secondary">
+							Du kannst noch {changeableAnswers} {f:if(condition: '{changeableAnswers} > 1' , then: 'Optionen' , else: 'Option')} setzen.
+						</div>
+						<div class="text-right  col-auto">
+							<f:form.submit class="btn btn-primary" value="{f:translate(key: 'form.save', default: 'Save')}" />
+						</div>
+					</f:then>
+					<f:else>
+						<div class="alert alert-warning">Alle möglichen Optionen sind gesetzt. Prima! Danke für dein Vertrauen.</div>
+					</f:else>
+				</f:if>
 
-				<div class="text-right">
-					<f:form.submit class="btn btn-primary" value="{f:translate(key: 'form.save', default: 'Save')}" />
-				</div>
 			</f:form>
 
 

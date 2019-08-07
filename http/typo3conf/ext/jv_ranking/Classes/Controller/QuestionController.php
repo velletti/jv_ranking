@@ -53,6 +53,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
 
         $questions = $this->questionRepository->findAll()->toArray() ;
         $ansers = 0 ;
+        $changeableAnswers = 0 ;
         /** @var \JVE\JvRanking\Domain\Model\Question $question */
         foreach ( $questions as $key => $question ) {
             $needToCountEvents = false ;
@@ -96,6 +97,8 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
 
                 if( $answer->getStarttime() > time() || $question->getHidden() || $notEnoughEvents) {
                     $arr['readOnly'] = 'readonly';
+                } else {
+                    $changeableAnswers ++ ;
                 }
 
 
@@ -103,12 +106,15 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                 $arr = array() ;
                 if( $question->getHidden() || $notEnoughEvents ) {
                     $arr['readOnly'] = 'readonly';
+                }else {
+                    $changeableAnswers ++ ;
                 }
 
             }
             $question->setAnswer( $arr  ) ;
         }
         $this->view->assign('ansers', $ansers);
+        $this->view->assign('changeableAnswers', $changeableAnswers);
         $this->view->assign('count', count( $questions));
         $this->view->assign('questions', $questions);
         $this->view->assign('organizer', $organizer);
@@ -311,7 +317,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         }
         $debug .= "\n" . " Before Random : " . $newSorting ;
         $newSorting = $newSorting - date("s") ;
-        $debug .= "\n" . "NewSorting: " . $newSorting ;
+        $debug .= "\n" . "NewSorting after random: " . $newSorting ;
         $debug .= "\n ***************************************************" ;
         if( $newSorting < 100) {
             // dann random...
@@ -319,16 +325,27 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
             $debug .= "\n" . "NewSorting as was < 100 : " . $newSorting ;
         }
 
-        $organizer->setSorting( $newSorting ) ;
-        // ToDo Free / Silver / Gold neu berechnen .. und Categorien setzen/korrgieren
+        $oldSorting =  $organizer->getSorting( ) ;
+        $debug .= "\n" . "OldSorting  was : " . $oldSorting ;
+        $posOld = $this->organizerRepository->findBySortingAllpages($oldSorting)->count() ;
+        $debug .= "\n" . "Old Position was : " . $posOld ;
 
+        $organizer->setSorting( $newSorting) ;
          $this->organizerRepository->update( $organizer) ;
 
 
         $this->persistenceManager->persistAll();
+
+        $debug .= "\n" . "Count with NewSorting : " . $newSorting ;
+        $posNew = $this->organizerRepository->findBySortingAllpages($newSorting)->count() ;
+        $debug .= "\n" . "New Position is : " . $posNew ;
+        $organizer->setSorting( $newSorting ) ;
+        // ToDo Free / Silver / Gold neu berechnen .. und Categorien setzen/korrgieren
+
         $this->sendDebugEmail('info@tangomuenchen.de','info@tangomuenchen.de' ,'[Ranking] ' . $organizer->getUid() . " - " . $organizer->getEmail() , $debug ) ;
 
         $this->addFlashMessage("Ranking settings updated! Deine neue Position in der Veranstalterliste ist in spätestens 24 Stunden aktiv." , "Success" , \TYPO3\CMS\Core\Messaging\AbstractMessage::OK) ;
+        $this->addFlashMessage("Bisherige Position: ". $posOld . " Neue Position: " . $posNew . "" , "" , \TYPO3\CMS\Core\Messaging\AbstractMessage::OK) ;
 
         $this->redirect('list');
     }

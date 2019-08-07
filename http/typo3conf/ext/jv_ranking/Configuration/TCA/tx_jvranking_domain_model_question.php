@@ -102,6 +102,15 @@ return [
                 'eval' => 'int'
             ]
         ],
+        'sorting' => [
+            'exclude' => true,
+            'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.sorting',
+            'config' => [
+                'type' => 'input',
+                'size' => 11,
+                'eval' => 'int'
+            ]
+        ],
         'valid_until' => [
             'exclude' => true,
             'label' => 'LLL:EXT:jv_ranking/Resources/Private/Language/locallang_db.xlf:tx_jvranking_domain_model_question.valid_until',
