@@ -111,6 +111,17 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                 }
 
             }
+            if( $question->getAccess() ) {
+                if(!$this->hasUserGroup( $question->getAccess())) {
+                    if($question->isVisible()) {
+                        unset($arr['answer']) ;
+                        unset($arr['date']) ;
+                        $arr['readOnly'] = 'readonly';
+                    } else {
+                        unset( $questions[$key] ) ;
+                    }
+                }
+            }
             $question->setAnswer( $arr  ) ;
         }
         $this->view->assign('ansers', $ansers);
@@ -310,8 +321,18 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
 
 
         $categories = $organizer->getOrganizerCategory()->getArray() ;
+        $hasGroup = [] ;
+        $hasGroup[7] = false ;
+        $hasGroup[8] = false ;
+        $hasGroup[9] = false ;
+        $hasGroup[11] = false ;
+
         /** @var \JVE\JvEvents\Domain\Model\Category $category */
         foreach ( $categories as $category ) {
+
+            if( $category->getUid() > 6 && $category->getUid() < 12 ) {
+                $hasGroup[ $category->getUid() ] = true ;
+            }
             $newSorting = $newSorting - ( $category->getUid() *3 )  ;
             $debug .= "\n" . "Has Category: " .  $category->getUid() . " - " . $category->getTitle()  ;
         }
@@ -324,6 +345,44 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
             $newSorting = 40 + date("s") ;
             $debug .= "\n" . "NewSorting as was < 100 : " . $newSorting ;
         }
+
+        /* +++++++++++++    SET the New Group +++++++++++++++++++++++++++++++++++ */
+
+        if ( $newSorting < 7000 ) {
+            $newGroup = 11 ; // Platin
+            $debug .= "\n" . "NewGroup ID  : " . $newGroup . " Platin" ;
+        } else  if ( $newSorting < 8000 ) {
+            $newGroup = 9 ; // Gold
+            $debug .= "\n" . "NewGroup ID  : " . $newGroup . " Gold" ;
+        } else  if ( $newSorting < 9400 ) {
+            $newGroup = 8 ; //  silver
+            $debug .= "\n" . "NewGroup ID  : " . $newGroup . " silver" ;
+        } else {
+            $newGroup = 7 ; // free
+            $debug .= "\n" . "NewGroup ID  : " . $newGroup . " free" ;
+        }
+        $newGroupInfo = '';
+        if( $hasGroup[$newGroup]) {
+            $debug .= "\n" . "User has Group, do nothing .." ;
+        } else {
+            $debug .= "\n" . "User needs New  Group " ;
+            foreach ( $categories as $category ) {
+                if( $category->getUid() > 6 && $category->getUid() < 12 && $category->getUid() != $newGroup ) {
+                    $organizer->getOrganizerCategory()->detach( $category) ;
+                    $debug .= "\n" . "Removed  Category Group: " .  $category->getUid() . " - " . $category->getTitle()  ;
+                }
+            }
+            $category = $this->categoryRepository->findByUid($newGroup) ;
+            if( is_object($category)) {
+                $organizer->getOrganizerCategory()->attach($category) ;
+                $debug .= "\n" . "Added  Category Group: " .  $category->getUid() . " - " . $category->getTitle()  ;
+                $newGroupInfo = " | Typ: " . $category->getTitle() ;
+            }
+
+        }
+
+        /* +++++++++++++    SET the New Group +++++++++++++++++++++++++++++++++++ */
+
 
         $oldSorting =  $organizer->getSorting( ) ;
         $debug .= "\n" . "OldSorting  was : " . $oldSorting ;
@@ -345,7 +404,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $this->sendDebugEmail('info@tangomuenchen.de','info@tangomuenchen.de' ,'[Ranking] ' . $organizer->getUid() . " - " . $organizer->getEmail() , $debug ) ;
 
         $this->addFlashMessage("Ranking settings updated! Deine neue Position in der Veranstalterliste ist in spätestens 24 Stunden aktiv." , "Success" , \TYPO3\CMS\Core\Messaging\AbstractMessage::OK) ;
-        $this->addFlashMessage("Bisherige Position: ". $posOld . " Neue Position: " . $posNew . "" , "" , \TYPO3\CMS\Core\Messaging\AbstractMessage::OK) ;
+        $this->addFlashMessage("Bisherige Position: ". $posOld . " Neue Position: " . $posNew . " " . $newGroupInfo  , "" , \TYPO3\CMS\Core\Messaging\AbstractMessage::NOTICE) ;
 
         $this->redirect('list');
     }

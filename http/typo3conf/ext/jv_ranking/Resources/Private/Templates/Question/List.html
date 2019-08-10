@@ -83,7 +83,8 @@
 
 
 			<div class="alert alert-secondary px-3 py-1 mt-3 small row">
-				<div class="col-sm-6 col-12 text-left">Ranking Value: {organizer.sorting} </div><div class="col-sm-6 col-12 text-right"> Your ID: U-{user.uid}-O-{organizer.uid}-P-{organizer.pid}</div>
+				<div class="col-sm-6 col-12 text-left">Ranking Value: {organizer.sorting} </div>
+				<div class="col-sm-6 col-12 text-right">Your ID: U-{user.uid}-O-{organizer.uid}-P-{organizer.pid}-G<f:for each="{organizer.organizerCategory}" as="cat">-{cat.uid}</f:for></div>
 			</div>
 		</div>
 

@@ -89,6 +89,21 @@ class Question extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
 
 
     /**
+     * this event is visible for the following usergroups / Access Rights
+     *
+     * @var string
+     */
+    protected $access = '';
+
+
+    /**
+     * value
+     *
+     * @var bool
+     */
+    protected $visible = false ;
+
+    /**
      * Initializes all ObjectStorage properties
      *
      * @return void
@@ -384,6 +399,38 @@ class Question extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     public function setTags(\TYPO3\CMS\Extbase\Persistence\ObjectStorage $tags)
     {
         $this->tags = $tags;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAccess()
+    {
+        return $this->access;
+    }
+
+    /**
+     * @param string $access
+     */
+    public function setAccess($access)
+    {
+        $this->access = $access;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isVisible()
+    {
+        return $this->visible;
+    }
+
+    /**
+     * @param bool $visible
+     */
+    public function setVisible($visible)
+    {
+        $this->visible = $visible;
     }
 
 
