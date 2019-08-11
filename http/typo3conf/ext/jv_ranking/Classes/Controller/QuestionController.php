@@ -192,9 +192,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $this->answerRepository->setDefaultQuerySettings( $querysettings );
 
         $totalValue = 0 ;
-        /** @var \JVE\JvRanking\Domain\Model\Answer $answer */
-        $answer = $this->answerRepository->getAllAnswersByOrganizerUid( $organizer->getUid())->getFirst() ;
-        $answers = $this->answerRepository->findAll()->toArray() ;
+        $answers = $this->answerRepository->getAllAnswersByOrganizerUid( $organizer->getUid())->toArray() ;
         if( !is_array($answers)) {
             $debug .= "\n No Previous answers found. First Time using ranking Module" ;
             $debug .= "\n ***************************************************" ;
