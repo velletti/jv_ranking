@@ -49,17 +49,16 @@ class AnswerRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
         $query->setQuerySettings($querySettings) ;
 
         $constraints[] = $query->equals('organizerUid', $organizerUid ) ;
-        $constraints[] = $query->equals('deleted', 0 ) ;
         $constraints[] = $query->equals('hidden', 0 ) ;
         $query->matching($query->logicalAnd($constraints));
 
         $res = $query->execute() ;
 
         // new way to debug typo3 db queries
-         $queryParser = $this->objectManager->get(\TYPO3\CMS\Extbase\Persistence\Generic\Storage\Typo3DbQueryParser::class);
-         var_dump($queryParser->convertQueryToDoctrineQueryBuilder($query)->getSQL());
-         var_dump($queryParser->convertQueryToDoctrineQueryBuilder($query)->getParameters()) ;
-         die;
+        // $queryParser = $this->objectManager->get(\TYPO3\CMS\Extbase\Persistence\Generic\Storage\Typo3DbQueryParser::class);
+        // var_dump($queryParser->convertQueryToDoctrineQueryBuilder($query)->getSQL());
+        // var_dump($queryParser->convertQueryToDoctrineQueryBuilder($query)->getParameters()) ;
+        // die;
         return $res ;
     }
 }
