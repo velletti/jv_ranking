@@ -49,11 +49,9 @@ class AnswerRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
         $query->setQuerySettings($querySettings) ;
 
         $constraints[] = $query->equals('organizerUid', $organizerUid ) ;
-        if( count($constraints) > 1 ) {
-            $query->matching($query->logicalAnd($constraints));
-        } else {
-            $query->matching($constraints);
-        }
+        $constraints[] = $query->equals('deleted', 0 ) ;
+        $constraints[] = $query->equals('hidden', 0 ) ;
+        $query->matching($query->logicalAnd($constraints));
 
         $res = $query->execute() ;
 
