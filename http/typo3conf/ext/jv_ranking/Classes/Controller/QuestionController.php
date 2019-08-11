@@ -217,6 +217,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                     foreach ( $questions as $id =>  $value) {
 
                         if( is_object($answer->getQuestion() ) && $answer->getQuestion()->getUid() == $id ) {
+                            $debug .= "\n Answer unchanged: " . $answer->getQuestion()->getQuestion() ;
                             $totalValue = $totalValue + $answer->getQuestion()->getValue() ;
                             unset( $questions[$id] ) ;
                         }
@@ -349,17 +350,20 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         /* +++++++++++++    SET the New Group +++++++++++++++++++++++++++++++++++ */
 
         if ( $newSorting < 7000 ) {
-            $newGroup = 11 ; // Platin
+            $newGroup = 11 ;
             $debug .= "\n" . "NewGroup ID  : " . $newGroup . " Platin" ;
-        } else  if ( $newSorting < 8000 ) {
-            $newGroup = 9 ; // Gold
+
+        } else  if ( $newSorting < 7700 ) {
+            $newGroup = 9 ;
             $debug .= "\n" . "NewGroup ID  : " . $newGroup . " Gold" ;
+
         } else  if ( $newSorting < 9400 ) {
-            $newGroup = 8 ; //  silver
-            $debug .= "\n" . "NewGroup ID  : " . $newGroup . " silver" ;
+            $newGroup = 8 ;
+            $debug .= "\n" . "NewGroup ID  : " . $newGroup . " Silver" ;
+
         } else {
             $newGroup = 7 ; // free
-            $debug .= "\n" . "NewGroup ID  : " . $newGroup . " free" ;
+            $debug .= "\n" . "NewGroup ID  : " . $newGroup . " Free" ;
         }
         $newGroupInfo = '';
         if( $hasGroup[$newGroup]) {
