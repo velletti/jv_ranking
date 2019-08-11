@@ -171,10 +171,15 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
 
         $debug = "\n ***************************************************" . "\n" ."Organizer: " . $organizer->getUid() . " - " . $organizer->getEmail()
             . " Old Sorting: " . $organizer->getSorting() ;
-        $debug = "\n ***************************************************" ;
+        $debug .= "\n ***************************************************" ;
+
+
         $answerCount = 0 ;
         if( is_array($questions )) {
             $answerCount = count($questions);
+            $debug .= "\n Total Answers: " . $answerCount ;
+            $debug .= "\n submitted request questions : " . var_export($questions , true ) ;
+            $debug .= "\n ***************************************************" ;
         }
 
 
@@ -188,51 +193,61 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
 
         $totalValue = 0 ;
         $answers = $this->answerRepository->findAll()->toArray() ;
-        /** @var \JVE\JvRanking\Domain\Model\Answer $answer */
-        foreach ( $answers as $key => $answer ) {
-            $answerIsUpdated = false ;
-            $answQuestion = $answer->getQuestion() ;
-            if( $answer->getStarttime() < time() ) {
-                // answer is older than valid_unitl Days days and may be changed
-                if( is_array($questions )) {
-                    foreach ( $questions as $id =>  $value) {
-                        // check if answer is in array of new answer
-                        if( $answQuestion->getUid() == $id ) {
-                            $debug .= "\n Answer Updated: " . $answQuestion->getQuestion() ;
-                            $totalValue = $totalValue + $answQuestion->getValue() ;
-                            $answer->setStarttime( time() + ( $answQuestion->getVaidUntil() *3600 * 24 ) ) ;
-                            $answerIsUpdated = $this->answerRepository->update( $answer ) ;
-                            unset( $questions[$id] ) ;
-                        }
-                    }
-                }
-                // answer does not exist anymore in response
-                if( !$answerIsUpdated ) {
-                    $debug .= "\n Answer removed: " . $answer->getQuestion()->getQuestion() ;
-                    $this->answerRepository->remove($answer) ;
-                }
-            } else {
-                // answer may not be changed as it was set in less than 30 days
-                if( is_array($questions )) {
-                    foreach ( $questions as $id =>  $value) {
+        if( !is_array($answers)) {
+            $debug .= "\n No Previous answers found. First Time using ranking Module" ;
+            $debug .= "\n ***************************************************" ;
+        } else {
 
-                        if( is_object($answer->getQuestion() ) && $answer->getQuestion()->getUid() == $id ) {
-                            $debug .= "\n Answer unchanged: " . $answer->getQuestion()->getQuestion() ;
-                            $totalValue = $totalValue + $answer->getQuestion()->getValue() ;
-                            unset( $questions[$id] ) ;
+            /** @var \JVE\JvRanking\Domain\Model\Answer $answer */
+            foreach ( $answers as $key => $answer ) {
+                $answerIsUpdated = false ;
+                $answQuestion = $answer->getQuestion() ;
+                if( $answer->getStarttime() < time() ) {
+                    // answer is older than valid_unitl Days days and may be changed
+                    if( is_array($questions )) {
+                        foreach ( $questions as $id =>  $value) {
+                            // check if answer is in array of new answer
+                            if( $answQuestion->getUid() == $id ) {
+                                $debug .= "\n Answer Updated: " . $answQuestion->getQuestion() ;
+                                $totalValue = $totalValue + $answQuestion->getValue() ;
+                                $answer->setStarttime( time() + ( $answQuestion->getVaidUntil() *3600 * 24 ) ) ;
+                                $answerIsUpdated = $this->answerRepository->update( $answer ) ;
+                                unset( $questions[$id] ) ;
+                            }
+                        }
+                    }
+                    // answer does not exist anymore in response
+                    if( !$answerIsUpdated ) {
+                        $debug .= "\n Answer removed: " . $answer->getQuestion()->getQuestion() ;
+                        $this->answerRepository->remove($answer) ;
+                    }
+                } else {
+                    // answer may not be changed as it was set in less than 30 days
+                    if( is_array($questions )) {
+                        foreach ( $questions as $id =>  $value) {
+
+                            if( is_object($answer->getQuestion() ) && $answer->getQuestion()->getUid() == $id ) {
+                                $debug .= "\n Answer unchanged: " . $answer->getQuestion()->getQuestion() ;
+                                $totalValue = $totalValue + $answer->getQuestion()->getValue() ;
+                                unset( $questions[$id] ) ;
+                            }
                         }
                     }
                 }
+
+
             }
-
-
         }
+
         if( is_array($questions )) {
             foreach ( $questions as $id =>  $value) {
+
+                $debug .= "\n Now adding new answers: " ;
+                $debug .= "\n ***************************************************" ;
                 /** @var \JVE\JvRanking\Domain\Model\Answer $newAnswer */
                 $newAnswer = $this->objectManager->get( "JVE\\JvRanking\\Domain\\Model\\Answer")  ;
                 /** @var \JVE\JvRanking\Domain\Model\Question $questionObj */
-                $questionObj = $this->questionRepository->findOneByUid($id ) ;
+                $questionObj = $this->questionRepository->findByUid($id ) ;
                 if( is_object( $questionObj )) {
                     $debug .= "\n Answer Added: " . $questionObj->getQuestion() ;
                     $totalValue = $totalValue + $questionObj->getValue() ;
@@ -244,6 +259,9 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                     $newAnswer->setStarttime( time() + ( $questionObj->getValidUntil() *3600 * 24 ) ) ;
 
                     $this->answerRepository->add($newAnswer) ;
+                } else {
+                    $debug .= "\n Error: could not adding new answer: Question Uid " . $id . " not Found !";
+                    $debug .= "\n ***************************************************" ;
                 }
 
 
