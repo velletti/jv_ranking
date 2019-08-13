@@ -16,7 +16,7 @@
 
 					</div>
 					<div class="col-9 com-sm-6 col-md-7">Deine Festlegung </div>
-					<div class="ol-6 offset-3 col-sm-6 offset-sm-2 col-md-2 offset-md-0">
+					<div class="col-6 offset-3 col-sm-6 offset-sm-2 col-md-2 offset-md-0">
 						Änderbar ab
 					</div>
 					<div class="col-3 col-sm-2">
@@ -68,7 +68,7 @@
 				<f:if condition="{changeableAnswers}">
 					<f:then>
 						<div class="text-left col-auto alert alert-secondary">
-							Du kannst noch {changeableAnswers} {f:if(condition: '{changeableAnswers} > 1' , then: 'Optionen' , else: 'Option')} setzen.
+							Du kannst {changeableAnswers} {f:if(condition: '{changeableAnswers} > 1' , then: 'Optionen' , else: 'Option')} ändern oder setzen.
 						</div>
 						<div class="text-right  col-auto">
 							<f:form.submit class="btn btn-primary" value="{f:translate(key: 'form.save', default: 'Save')}" />
