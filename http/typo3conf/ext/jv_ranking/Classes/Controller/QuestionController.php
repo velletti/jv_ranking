@@ -117,8 +117,10 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                         unset($arr['answer']) ;
                         unset($arr['date']) ;
                         $arr['readOnly'] = 'readonly';
+                        $changeableAnswers -- ;
                     } else {
                         unset( $questions[$key] ) ;
+                        $changeableAnswers -- ;
                     }
                 }
             }
@@ -212,8 +214,11 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                             if( $answQuestion->getUid() == $id ) {
                                 $debug .= "\n Answer Updated: " . $answQuestion->getQuestion() ;
                                 $totalValue = $totalValue + $answQuestion->getValue() ;
-                                $answer->setStarttime( time() + ( $answQuestion->getVaidUntil() *3600 * 24 ) ) ;
-                                $answerIsUpdated = $this->answerRepository->update( $answer ) ;
+                                $answer->setStarttime( time() + ( $answQuestion->getValidUntil() *3600 * 24 ) ) ;
+                                $debug .= "\n Answer valid until: " . date( "d.m.Y H:i" , $answer->getStarttime()) ;
+
+                                $answerIsUpdated = true ;
+                                $this->answerRepository->update( $answer ) ;
                                 unset( $questions[$id] ) ;
                             }
                         }
