@@ -9,6 +9,11 @@
 		</div>
 
 		<div  class="tx_jvranking" >
+			<f:if condition="{changeableAnswers} < 5">
+				<div class="alert alert-secondary">
+					<span class="fa fa-info-circle"></span> Für Optionen, die nicht aktivierbar sind, bitte den [?] Button vor der Option anklicken, um zu erfahren, warum die Option deaktiviert ist.
+				</div>
+			</f:if>
 			<f:form class="form-horizontal"  action="save" name="ranking" id="jv_ranking_form">
 				<div class="row my-3 bg-gradient-secondary  text-white font-weight-bold">
 
@@ -17,7 +22,7 @@
 					</div>
 					<div class="col-9 com-sm-6 col-md-7">Deine Festlegung </div>
 					<div class="col-6 offset-3 col-sm-6 offset-sm-2 col-md-2 offset-md-0">
-						Änderbar ab
+						Gilt bis
 					</div>
 					<div class="col-3 col-sm-2">
 						Status
@@ -38,8 +43,15 @@
 							{question.question}  {f:if(condition: question.answer.readOnly , then: '({question.answer.readOnly})')}
 						</div>
 						<div class="col-6 offset-3 col-sm-6 offset-sm-2 col-md-2 offset-md-0">
-							<f:if condition="{question.answer.date}">
-								<f:format.date format="d.m.Y H:i:s">{question.answer.date}</f:format.date>
+							<f:if condition="{question.answer.readOnly}">
+								<f:then>
+									<f:if condition="{question.answer.date}">
+										<f:format.date format="d.m.Y H:i:s">{question.answer.date}</f:format.date>
+									</f:if>
+								</f:then>
+								<f:else>
+									<f:format.date format="d.m.Y H:i:s">+{question.validUntil} days</f:format.date>
+								</f:else>
 							</f:if>
 
 						</div>
