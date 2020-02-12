@@ -336,6 +336,12 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $debug .= "\n" . "Dance Event Count: max 50 : " .  $eventCount  ;
         $newSorting = $newSorting - min( $eventCount , 50 ) ;
         $debug .= "\n" . "NewSorting: " . $newSorting ;
+        if( is_object($organizer->getTeaserImage()) && $organizer->getTeaserImage()->getOriginalResource()) {
+            $debug .= "\n" . "Organizer has Picture : additionl 50 points "     ;
+            $newSorting = $newSorting -  50  ;
+            $debug .= "\n" . "NewSorting: " . $newSorting ;
+        }
+
 
         // live Musik: muss belohnt werden
         $filter['tags'] = "4," ;
@@ -370,6 +376,12 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
             // dann random...
             $newSorting = 40 + date("s") ;
             $debug .= "\n" . "NewSorting as was < 100 : " . $newSorting ;
+        }
+
+        /* +++++++++++++    SET New Sortign for J Velletti always to 10  +++++++++++++++++++++++++++++++++++ */
+
+        if( strtolower( $organizer->getEmail()) == "joergvelletti@gmx.de") {
+           $newSorting = 10  ;
         }
 
         /* +++++++++++++    SET the New Group +++++++++++++++++++++++++++++++++++ */
@@ -419,6 +431,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $debug .= "\n" . "Old Position was : " . $posOld ;
 
         $organizer->setSorting( $newSorting) ;
+
          $this->organizerRepository->update( $organizer) ;
 
 
@@ -427,7 +440,8 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $debug .= "\n" . "Count with NewSorting : " . $newSorting ;
         $posNew = $this->organizerRepository->findBySortingAllpages($newSorting)->count() ;
         $debug .= "\n" . "New Position is : " . $posNew ;
-        $organizer->setSorting( $newSorting ) ;
+
+
         // ToDo Free / Silver / Gold neu berechnen .. und Categorien setzen/korrgieren
 
         $this->sendDebugEmail('tango@velletti.de','info@tangomuenchen.de' ,'[Ranking] ' . $organizer->getUid() . " - " . $organizer->getEmail() , $debug ) ;
