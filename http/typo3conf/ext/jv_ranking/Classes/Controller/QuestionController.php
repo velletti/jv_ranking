@@ -1,6 +1,8 @@
 <?php
 namespace JVE\JvRanking\Controller;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /***
  *
  * This file is part of the "JV Ranking Module" Extension for TYPO3 CMS.
@@ -21,7 +23,6 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
      * questionRepository
      *
      * @var \JVE\JvRanking\Domain\Repository\QuestionRepository
-     * @inject
      */
     protected $questionRepository = null;
 
@@ -29,9 +30,19 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
      * answerRepository
      *
      * @var \JVE\JvRanking\Domain\Repository\AnswerRepository
-     * @inject
      */
     protected $answerRepository = null;
+
+    /**
+     * action initialize
+     *
+     * @return void
+     */
+    public function initializeAction()
+    {
+        $this->answerRepository = GeneralUtility::makeInstance( "JVE\\JvRanking\\Domain\\Repository\\AnswerRepository" ) ;
+        $this->questionRepository = GeneralUtility::makeInstance( "JVE\\JvRanking\\Domain\\Repository\\QuestionRepository" ) ;
+    }
 
     /**
      * action list
