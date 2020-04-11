@@ -1,7 +1,21 @@
 <?php
 namespace JVE\JvRanking\Controller;
 
+use JVE\JvEvents\Domain\Model\Category;
+use JVE\JvEvents\Domain\Model\Organizer;
+use JVE\JvEvents\Domain\Model\Tag;
+use JVE\JvRanking\Domain\Model\Answer;
+use JVE\JvRanking\Domain\Model\Question;
+use JVE\JvRanking\Domain\Repository\AnswerRepository;
+use JVE\JvRanking\Domain\Repository\QuestionRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
+use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
+use TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException;
+use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
+use TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings;
 
 /***
  *
@@ -22,14 +36,14 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
     /**
      * questionRepository
      *
-     * @var \JVE\JvRanking\Domain\Repository\QuestionRepository
+     * @var QuestionRepository
      */
     protected $questionRepository = null;
 
     /**
      * answerRepository
      *
-     * @var \JVE\JvRanking\Domain\Repository\AnswerRepository
+     * @var AnswerRepository
      */
     protected $answerRepository = null;
 
@@ -40,20 +54,39 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
      */
     public function initializeAction()
     {
-        $this->answerRepository = GeneralUtility::makeInstance( "JVE\\JvRanking\\Domain\\Repository\\AnswerRepository" ) ;
-        $this->questionRepository = GeneralUtility::makeInstance( "JVE\\JvRanking\\Domain\\Repository\\QuestionRepository" ) ;
+        $this->questionRepository = $this->objectManager->get("JVE\JvRanking\Domain\Repository\QuestionRepository") ;
+        $this->answerRepository = $this->objectManager->get("JVE\JvRanking\Domain\Repository\AnswerRepository") ;
+    }
+
+    /**
+     * @param AnswerRepository $answerRepository
+     */
+    public function injectAnswerRepository(AnswerRepository $answerRepository)
+    {
+        $this->answerRepository = $answerRepository;
+    }
+
+    /**
+     * @param QuestionRepository $questionRepository
+     */
+    public function injectQuestionRepository(QuestionRepository $questionRepository)
+    {
+        $this->questionRepository = $questionRepository;
     }
 
     /**
      * action list
      *
      * @return void
+     * @throws NoSuchArgumentException
+     * @throws InvalidQueryException
      */
     public function listAction()
     {
         $organizer = $this->getOrganizer();
 
-        $querysettings = new \TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings ;
+        /** @var Typo3QuerySettings $querysettings */
+        $querysettings = GeneralUtility::makeInstance("TYPO3\\CMS\\Extbase\\Persistence\\Generic\\Typo3QuerySettings" ) ;
         // toDo set storage Pid here
         $querysettings->setStoragePageIds(array( 52 )) ;
         $this->answerRepository->setDefaultQuerySettings( $querysettings );
@@ -65,7 +98,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $questions = $this->questionRepository->findAll()->toArray() ;
         $ansers = 0 ;
         $changeableAnswers = 0 ;
-        /** @var \JVE\JvRanking\Domain\Model\Question $question */
+        /** @var Question $question */
         foreach ( $questions as $key => $question ) {
             $needToCountEvents = false ;
             $notEnoughEvents = false ;
@@ -78,14 +111,14 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
             if ( $tags && count( $tags ) > 0 ) {
                 $tags = $tags->getArray() ;
                 if ( is_array($tags)) {
-                    /** @var \JVE\JvEvents\Domain\Model\Tag $tag */
+                    /** @var Tag $tag */
                     foreach ($tags as $tag) {
                         $filter['tags'] .= $tag->getUid() . "," ;
                     }
                     $needToCountEvents = true ;
                 }
             }
-            /** @var \JVE\JvEvents\Domain\Model\Category $category */
+            /** @var Category $category */
             foreach ($question->getEventCategory() as $category ) {
                 if ( is_object( $category )) {
                     $filter['categories'] .= $category->getUid() . "," ;
@@ -100,7 +133,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
             }
 
 
-            /** @var \JVE\JvRanking\Domain\Model\Answer $answer */
+            /** @var Answer $answer */
             $answer = $this->answerRepository->getAnswerByOrganizerUid($question->getUid() , $organizer->getUid())->getFirst() ;
             if ( $answer) {
                 $ansers ++ ;
@@ -148,10 +181,10 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
     /**
      * action show
      *
-     * @param \JVE\JvRanking\Domain\Model\Question $question
+     * @param Question $question
      * @return void
      */
-    public function showAction(\JVE\JvRanking\Domain\Model\Question $question)
+    public function showAction(Question $question)
     {
         $this->view->assign('question', $question);
     }
@@ -159,10 +192,12 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
     /**
      * action delete
      *
-     * @param \JVE\JvRanking\Domain\Model\Question $question
+     * @param Question $question
      * @return void
+     * @throws StopActionException
+     * @throws UnsupportedRequestTypeException
      */
-    public function deleteAction(\JVE\JvRanking\Domain\Model\Question $question)
+    public function deleteAction(Question $question)
     {
         $this->addFlashMessage('The object was NOT  deleted. This action is actually not needed ', '', \TYPO3\CMS\Core\Messaging\AbstractMessage::WARNING);
         $this->redirect('list');
@@ -172,15 +207,24 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
      * action save
      *
      * @return void
+     * @throws InvalidQueryException
+     * @throws NoSuchArgumentException
+     * @throws StopActionException
+     * @throws UnsupportedRequestTypeException
+     * @throws IllegalObjectTypeException
+     * @throws UnknownObjectException
      */
     public function saveAction()
     {
-        $request = $this->request->getArguments() ;
         if ( $this->request->hasArgument("questions") ) {
             $questions = $this->request->getArgument("questions") ;
         }
-        /** @var \JVE\JvEvents\Domain\Model\Organizer $organizer */
-        $organizer = $this->getOrganizer();
+        /** @var Organizer $organizer */
+        try {
+            $organizer = $this->getOrganizer();
+        } catch (NoSuchArgumentException $e) {
+        } catch (InvalidQueryException $e) {
+        }
 
         $debug = "\n ***************************************************" . "\n" ."Organizer: " . $organizer->getUid() . " - " . $organizer->getEmail()
             . " Old Sorting: " . $organizer->getSorting() ;
@@ -196,8 +240,8 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         }
 
 
-        $querysettings = new \TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings ;
-        // toDo set storage Pid here
+        $querysettings = new Typo3QuerySettings ;
+        // toDo set storage Pid here from TypoScript or something else ..
         $querysettings->setStoragePageIds(array( 52 )) ;
         $this->questionRepository->setDefaultQuerySettings( $querysettings );
 
@@ -212,7 +256,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         } else {
             $debug .= "\n found Answers: " . count( $answers) ;
             $debug .= "\n ***************************************************" ;
-            /** @var \JVE\JvRanking\Domain\Model\Answer $answer */
+            /** @var Answer $answer */
             foreach ( $answers as $key => $answer ) {
                 $debug .= "\n Checking old Answer: " . $answer->getUid()  ;
                 $answerIsUpdated = false ;
@@ -262,9 +306,9 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
 
                 $debug .= "\n Now adding new answers: " ;
                 $debug .= "\n ***************************************************" ;
-                /** @var \JVE\JvRanking\Domain\Model\Answer $newAnswer */
+                /** @var Answer $newAnswer */
                 $newAnswer = $this->objectManager->get( "JVE\\JvRanking\\Domain\\Model\\Answer")  ;
-                /** @var \JVE\JvRanking\Domain\Model\Question $questionObj */
+                /** @var Question $questionObj */
                 $questionObj = $this->questionRepository->findByUid($id ) ;
                 if( is_object( $questionObj )) {
                     $debug .= "\n Answer Added: " . $questionObj->getQuestion() ;
@@ -295,7 +339,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $allAnswers= 0 ;
         $allAnswersPoint = 0 ;
         $allHiddenAnswers = 0 ;
-        /** @var \JVE\JvRanking\Domain\Model\Question $singleQuestion */
+        /** @var Question $singleQuestion */
         foreach ( $allQuestions as $key => $singleQuestion ) {
             $allAnswersPoint = $allAnswersPoint + $singleQuestion->getValue() ;
             if( $singleQuestion->gethidden()) {
@@ -370,7 +414,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $hasGroup[9] = false ;
         $hasGroup[11] = false ;
 
-        /** @var \JVE\JvEvents\Domain\Model\Category $category */
+        /** @var Category $category */
         foreach ( $categories as $category ) {
 
             if( $category->getUid() > 6 && $category->getUid() < 12 ) {
@@ -451,9 +495,6 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $debug .= "\n" . "Count with NewSorting : " . $newSorting ;
         $posNew = $this->organizerRepository->findBySortingAllpages($newSorting)->count() ;
         $debug .= "\n" . "New Position is : " . $posNew ;
-
-
-        // ToDo Free / Silver / Gold neu berechnen .. und Categorien setzen/korrgieren
 
         $this->sendDebugEmail('tango@velletti.de','info@tangomuenchen.de' ,'[Ranking] ' . $organizer->getUid() . " - " . $organizer->getEmail() , $debug ) ;
 
