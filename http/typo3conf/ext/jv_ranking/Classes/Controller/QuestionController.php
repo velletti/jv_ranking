@@ -8,6 +8,7 @@ use JVE\JvRanking\Domain\Model\Answer;
 use JVE\JvRanking\Domain\Model\Question;
 use JVE\JvRanking\Domain\Repository\AnswerRepository;
 use JVE\JvRanking\Domain\Repository\QuestionRepository;
+use JVE\JvRanking\Utility\RankingUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
@@ -263,12 +264,12 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                 $answQuestion = $answer->getQuestion() ;
                 if( $answer->getStarttime() < time() ) {
                     // answer is older than valid_unitl Days days and may be changed
-                    if( is_array($questions )) {
+                    if( is_array($questions ) && $answQuestion ) {
                         foreach ( $questions as $id =>  $value) {
                             // check if answer is in array of new answer
                             if( $answQuestion->getUid() == $id ) {
                                 $debug .= "\n Answer Updated: " . $answQuestion->getQuestion() ;
-                                $totalValue = $totalValue + $answQuestion->getValue() ;
+                                $totalValue = $totalValue + $answQuestion->getValue()  . " val: " . $answer->getQuestion()->getValue()  ;
                                 $answer->setStarttime( time() + ( $answQuestion->getValidUntil() *3600 * 24 ) ) ;
                                 $debug .= "\n Answer valid until: " . date( "d.m.Y H:i" , $answer->getStarttime()) ;
 
@@ -280,7 +281,9 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                     }
                     // answer does not exist anymore in response
                     if( !$answerIsUpdated ) {
-                        $debug .= "\n Answer removed: " . $answer->getQuestion()->getQuestion() ;
+                        if( $answer->getQuestion() ) {
+                            $debug .= "\n Answer removed: " . $answer->getQuestion()->getQuestion() ;
+                        }
                         $this->answerRepository->remove($answer) ;
                     }
                 } else {
@@ -289,7 +292,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                         foreach ( $questions as $id =>  $value) {
 
                             if( is_object($answer->getQuestion() ) && $answer->getQuestion()->getUid() == $id ) {
-                                $debug .= "\n Answer unchanged: " . $answer->getQuestion()->getQuestion() ;
+                                $debug .= "\n Answer unchanged: " . $answer->getQuestion()->getQuestion() . " val: " . $answer->getQuestion()->getValue()  ;
                                 $totalValue = $totalValue + $answer->getQuestion()->getValue() ;
                                 unset( $questions[$id] ) ;
                             }
@@ -312,7 +315,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                 $questionObj = $this->questionRepository->findByUid($id ) ;
                 if( is_object( $questionObj )) {
                     $debug .= "\n Answer Added: " . $questionObj->getQuestion() ;
-                    $totalValue = $totalValue + $questionObj->getValue() ;
+                    $totalValue = $totalValue + $questionObj->getValue()  . " val: " . $questionObj->getValue()  ;
 
                     $newAnswer->setPid(52) ;
                     $newAnswer->setOrganizerUid($organizer->getUid()) ;
@@ -331,113 +334,19 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                 unset($newAnswer) ;
             }
         }
+        $this->persistenceManager->persistAll() ;
+
         $debug .= "\n ***************************************************" ;
-        $debug .= "\n now calculating the New sorting value" ;
+        $isVip = $this->hasUserGroup( 3 ) ;
+        $lastLogin =  $GLOBALS['TSFE']->fe_user->user['lastlogin'] ;
+
+        $result = RankingUtility::calculate($this->questionRepository, $organizer , $this->eventRepository , $this->answerRepository , $isVip , $lastLogin) ;
+        $newSorting = $result['newsorting'] ;
+        $debug .= $result['debug'] ;
+        $hasGroup = $result['hasGroup'] ;
+        $categories = $result['categories'] ;
 
 
-        $allQuestions = $this->questionRepository->findAll()->toArray() ;
-        $allAnswers= 0 ;
-        $allAnswersPoint = 0 ;
-        $allHiddenAnswers = 0 ;
-        /** @var Question $singleQuestion */
-        foreach ( $allQuestions as $key => $singleQuestion ) {
-            $allAnswersPoint = $allAnswersPoint + $singleQuestion->getValue() ;
-            if( $singleQuestion->gethidden()) {
-                $allHiddenAnswers ++ ;
-            }
-            $allAnswers ++ ;
-        }
-        $debug .= "\n" . "Possible Points: " . $allAnswersPoint ;
-        $debug .= "\n" . "Possible Answers: " . $allAnswers ;
-        $debug .= "\n" . "possible Bonus: " . ($allAnswers * $allAnswers * 10 ) ;
-        $debug .= "\n" . "Hidden Answers: " . $allHiddenAnswers ;
-        $debug .= "\n ***************************************************" ;
-        $crYear = date( "Y" , $organizer->getCrdate() ) ;
-        $debug .= "\n" . "crYear: " . $crYear ;
-        // wir starten bei 5015 bzw. bei neuen <Veranstaltern derzeit dann bei 510 .
-        $base = ( $crYear - 1000 )  * 10 ;
-        $debug .= "\n" . "New Base: " . $base ;
-        $debug .= "\n" . "TotalValue: " . $totalValue ;
-
-
-
-        // dann ziehen wir die Antworten ab und , je mehr anworten, um so höher der Bonus
-        $newSorting = intval(  $base - $totalValue ) ;
-        $debug .= "\n" . "NewSorting: " . $newSorting ;
-        $debug .= "\n" . "AnserCount: " . $answerCount  . " = $answerCount * 10 ";
-        $newSorting = $newSorting - ( $answerCount * $answerCount * 10 )  ;
-        $debug .= "\n" . "NewSorting: " . $newSorting ;
-
-        // hat der User die manuelle Gruppe VIP ? macht 100 Punkte Bonus
-        if( $this->hasUserGroup( 3 )) {
-            $newSorting = $newSorting - 100 ;
-            $debug .= "\n" . "user Is VIP : " . $newSorting ;
-        }
-        $filter['organizer'] = $organizer->getUid() ;
-        $filter['startDate'] = -100 ;
-        $filter['maxDays'] = 365 ;
-
-        // Veranstalter mit vielen Events bekommen noch mal einen Bonus
-        $events = $this->eventRepository->findByFilter($filter ) ;
-        $eventCount = count( $events) ;
-        $debug .= "\n" . "Event Count: max 100 : " .  $eventCount  ;
-        $newSorting = $newSorting - min( $eventCount , 100 ) ;
-        $debug .= "\n" . "NewSorting: " . $newSorting ;
-
-        // tanz events noch mal bewerten
-        $filter['categories'] = "1," ;
-        $events = $this->eventRepository->findByFilter($filter ) ;
-        $eventCount = count( $events) ;
-        $debug .= "\n" . "Dance Event Count: max 50 : " .  $eventCount  ;
-        $newSorting = $newSorting - min( $eventCount , 50 ) ;
-        $debug .= "\n" . "NewSorting: " . $newSorting ;
-        if( is_object($organizer->getTeaserImage()) && $organizer->getTeaserImage()->getOriginalResource()) {
-            $debug .= "\n" . "Organizer has Picture : additionl 50 points "     ;
-            $newSorting = $newSorting -  50  ;
-            $debug .= "\n" . "NewSorting: " . $newSorting ;
-        }
-
-
-        // live Musik: muss belohnt werden
-        $filter['tags'] = "4," ;
-        $events = $this->eventRepository->findByFilter($filter ) ;
-        $eventCount = count( $events) ;
-        $debug .= "\n" . "LIVE Musik  Event Count: (max 10 aber 10 fach ): " .  $eventCount  ;
-        $newSorting = $newSorting - ( min( $eventCount , 10 ) * 10 )  ;
-        $debug .= "\n" . "NewSorting: " . $newSorting ;
-
-
-        $categories = $organizer->getOrganizerCategory()->getArray() ;
-        $hasGroup = [] ;
-        $hasGroup[7] = false ;
-        $hasGroup[8] = false ;
-        $hasGroup[9] = false ;
-        $hasGroup[11] = false ;
-
-        /** @var Category $category */
-        foreach ( $categories as $category ) {
-
-            if( $category->getUid() > 6 && $category->getUid() < 12 ) {
-                $hasGroup[ $category->getUid() ] = true ;
-            }
-            $newSorting = $newSorting - ( $category->getUid() *3 )  ;
-            $debug .= "\n" . "Has Category: " .  $category->getUid() . " - " . $category->getTitle()  ;
-        }
-        $debug .= "\n" . " Before Random : " . $newSorting ;
-        $newSorting = $newSorting - date("s") ;
-        $debug .= "\n" . "NewSorting after random: " . $newSorting ;
-        $debug .= "\n ***************************************************" ;
-        if( $newSorting < 100) {
-            // dann random...
-            $newSorting = 40 + date("s") ;
-            $debug .= "\n" . "NewSorting as was < 100 : " . $newSorting ;
-        }
-
-        /* +++++++++++++    SET New Sortign for J Velletti always to 10  +++++++++++++++++++++++++++++++++++ */
-
-        if( strtolower( $organizer->getEmail()) == "joergvelletti@gmx.de") {
-           $newSorting = 10  ;
-        }
 
         /* +++++++++++++    SET the New Group +++++++++++++++++++++++++++++++++++ */
 

@@ -24,5 +24,16 @@ class QuestionRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
         'sorting' => \TYPO3\CMS\Extbase\Persistence\QueryInterface::ORDER_ASCENDING
     ];
 
+    public function getAllPages( )
+    {
+        $query = $this->createQuery();
+        $querySettings = $query->getQuerySettings() ;
+        $querySettings->setRespectStoragePage(false);
+        $querySettings->setRespectSysLanguage(FALSE);
+        $query->setQuerySettings($querySettings) ;
+
+       return $query->execute() ;
+
+    }
 
 }
