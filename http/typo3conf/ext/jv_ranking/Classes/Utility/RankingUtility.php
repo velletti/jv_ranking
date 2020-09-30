@@ -180,10 +180,7 @@ class RankingUtility
             $newSorting = 40 + date("s") ;
             $debug .= "\n" . "NewSorting as was < 100 : " . $newSorting ;
         }
-        /* +++++++++++++    SET New Sorting for J Velletti always to 10  +++++++++++++++++++++++++++++++++++ */
-        if( strtolower( $organizer->getEmail()) == "joergvelletti@gmx.de") {
-            $newSorting = 10  ;
-        }
+
 
         // pro tag nicht eingeloggt = 24 Punkte wieder oben drauf ..
         $debug .= "\n" . " LastLogin: " . date("d.m.Y" , $lastLogin )  ;
@@ -191,6 +188,10 @@ class RankingUtility
             $lastLoginMalus = intval(  (( time() - $lastLogin ) / (3600) )) ;
             $newSorting = intval( $newSorting +  $lastLoginMalus  );
             $debug .= "\n" . "NewSorting after LastLogin: " . date("d.m.Y" , $lastLogin ) . " -> got malus: " .  $lastLoginMalus . " => ". $newSorting ;
+        }
+        /* +++++++++++++    SET New Sorting for J Velletti always to 10  +++++++++++++++++++++++++++++++++++ */
+        if( strtolower( $organizer->getEmail()) == "joergvelletti@gmx.de") {
+            $newSorting = 10  ;
         }
         return ["newsorting" => $newSorting , "debug" => $debug , "hasGroup" => $hasGroup , "categories" => $categories  ] ;
 

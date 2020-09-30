@@ -87,7 +87,15 @@
 						</div>
 					</f:then>
 					<f:else>
-						<div class="alert alert-warning">Alle möglichen Optionen sind gesetzt. Prima! Danke für dein Vertrauen.</div>
+						<div class="alert alert-info">Alle möglichen Optionen sind gesetzt. Prima!</div>
+						<f:if condition="{organizer.sorting} > 8000">
+							<div class="text-left col-auto alert alert-secondary">
+								Du kannst dein Ranking aktualisieren.
+							</div>
+							<div class="text-right  col-auto">
+								<f:form.submit class="btn btn-primary" value="{f:translate(key: 'form.save', default: 'Save')}" />
+							</div>
+						</f:if>
 					</f:else>
 				</f:if>
 
