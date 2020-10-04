@@ -227,10 +227,10 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         } catch (InvalidQueryException $e) {
         }
 
+
         $debug = "\n ***************************************************" . "\n" ."Organizer: " . $organizer->getUid() . " - " . $organizer->getEmail()
             . " Old Sorting: " . $organizer->getSorting() ;
         $debug .= "\n ***************************************************" ;
-
 
         $answerCount = 0 ;
         if( is_array($questions )) {
@@ -410,7 +410,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $this->addFlashMessage("Ranking settings updated! Deine neue Position in der Veranstalterliste ist in spätestens 24 Stunden aktiv." , "Success" , \TYPO3\CMS\Core\Messaging\AbstractMessage::OK) ;
         $this->addFlashMessage("Bisherige Position: ". $posOld . " Neue Position: " . $posNew . " " . $newGroupInfo  , "" , \TYPO3\CMS\Core\Messaging\AbstractMessage::NOTICE) ;
 
-        $this->redirect('list');
+        $this->redirect('list' , null , null, array( "organizer" => $organizer->getUid() ));
     }
 
 }

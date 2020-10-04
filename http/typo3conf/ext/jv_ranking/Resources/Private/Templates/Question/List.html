@@ -15,7 +15,15 @@
 				</div>
 			</f:if>
 			<f:form class="form-horizontal"  action="save" name="ranking" id="jv_ranking_form">
-				<div class="row my-3 bg-gradient-secondary  text-white font-weight-bold">
+				<f:form.hidden name="organizer" value="{organizer.uid}"></f:form.hidden>
+				<f:if condition="{organizer.uid} == {user.uid}">
+				 	<f:else>
+						<div class="alert alert-warning">
+							Ranking für Veranstalter: {organizer.uid} - {organizer.name}
+						</div>
+					</f:else>
+				</f:if>
+				<div class="row my-3 py-2 bg-gradient-secondary  text-white font-weight-bold">
 
 					<div class="col-3 col-sm-2 col-md-1">
 

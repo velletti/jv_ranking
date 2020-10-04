@@ -125,10 +125,10 @@ class RankingUtility
         $filter['tags'] = "4," ;
         $events = $eventRepository->findByFilter($filter ) ;
         $eventCount = count( $events) ;
-        $debug .= "\n" . "LIVE Musik  Event Count: (max 10 aber 50 fach ): " .  $eventCount  ;
-        $newSorting = $newSorting - ( min( $eventCount , 10 ) * 50 )  ;
+        $debug .= "\n" . "LIVE Musik  Event Count: (max 5 aber 100 fach ): " .  $eventCount  ;
+        $newSorting = $newSorting - ( min( $eventCount , 5) * 100 )  ;
         $danceBonusMax +=  500 ;
-        $danceBonus +=  ( min( $eventCount , 10 ) * 50 )   ;
+        $danceBonus +=  ( min( $eventCount , 5 ) * 100 )   ;
         $debug .= "\n" . "NewSorting: " . $newSorting ;
 
         // Show : muss auch etwas belohnt werden
