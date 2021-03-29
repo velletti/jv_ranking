@@ -10,9 +10,9 @@
  * "version" and "dependencies" must not be touched!
  ***************************************************************/
 
-$EM_CONF[$_EXTKEY] = [
+$EM_CONF['jv_ranking'] = [
     'title' => 'JV Ranking Module',
-    'description' => 'Sort Vorganizer by options list',
+    'description' => 'Sort Organizer by options list',
     'category' => 'plugin',
     'author' => 'Amerigo Velletti',
     'author_email' => 'typo3@velletti.de',
@@ -24,6 +24,7 @@ $EM_CONF[$_EXTKEY] = [
     'constraints' => [
         'depends' => [
             'typo3' => '10.4.0-10.4.99',
+            'jv_events' => '^10.4',
         ],
         'conflicts' => [],
         'suggests' => [],
