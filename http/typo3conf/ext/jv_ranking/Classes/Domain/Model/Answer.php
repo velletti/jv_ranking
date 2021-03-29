@@ -21,7 +21,7 @@ class Answer extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * answer
      *
      * @var int
-     * @validate NotEmpty
+     * @TYPO3\CMS\Extbase\Annotation\Validate("NotEmpty")
      */
     protected $answer = 0;
 

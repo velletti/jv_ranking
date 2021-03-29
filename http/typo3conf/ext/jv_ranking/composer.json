@@ -1,7 +1,7 @@
 {
     "name": "jve/jv-ranking",
     "type": "typo3-cms-extension",
-    "description": "Sort Vorganizer by options list",
+    "description": "Sort Organizer by options list",
     "authors": [
         {
             "name": "Amerigo Vellett",
@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "typo3/cms-core": "^8.7.1"
+        "typo3/cms-core": "^10.4.1"
     },
     "autoload": {
         "psr-4": {
@@ -24,5 +24,10 @@
     "replace": {
         "jv_ranking": "self.version",
         "typo3-ter/jv-ranking": "self.version"
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "jv_ranking"
+        }
     }
 }

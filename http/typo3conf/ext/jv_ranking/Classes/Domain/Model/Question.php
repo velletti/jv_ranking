@@ -21,7 +21,7 @@ class Question extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * question
      *
      * @var string
-     * @validate NotEmpty
+     * @TYPO3\CMS\Extbase\Annotation\Validate("NotEmpty")
      */
     protected $question = '';
 
@@ -193,21 +193,6 @@ class Question extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
         $this->answer = $answer;
     }
 
-    /**
-     * @return int
-     */
-    public function getUid()
-    {
-        return $this->uid;
-    }
-
-    /**
-     * @param int $uid
-     */
-    public function setUid($uid)
-    {
-        $this->uid = $uid;
-    }
 
     /**
      * @return int
@@ -241,21 +226,6 @@ class Question extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
         $this->_languageUid = $languageUid;
     }
 
-    /**
-     * @return int
-     */
-    public function getPid()
-    {
-        return $this->pid;
-    }
-
-    /**
-     * @param int $pid
-     */
-    public function setPid($pid)
-    {
-        $this->pid = $pid;
-    }
 
     /**
      * @return int
