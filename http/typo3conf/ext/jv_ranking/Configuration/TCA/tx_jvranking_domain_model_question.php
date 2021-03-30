@@ -17,9 +17,6 @@ return [
         'searchFields' => 'question,description,value,answer',
         'iconfile' => 'EXT:jv_ranking/Resources/Public/Icons/tx_jvranking_domain_model_question.gif'
     ],
-    'interface' => [
-        'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, question, description, value, answer,valid_until,event_category,tags, visible, access',
-    ],
     'types' => [
         '1' => ['showitem' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, question, description, value, answer ,valid_until,--div--;Extended, valid_until,event_category,tags,access,visible'],
     ],
@@ -43,7 +40,6 @@ return [
         ],
         'l10n_parent' => [
             'displayCond' => 'FIELD:sys_language_uid:>:0',
-            'exclude' => true,
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.l18n_parent',
             'config' => [
                 'type' => 'select',
