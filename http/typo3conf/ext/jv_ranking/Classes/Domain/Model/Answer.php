@@ -58,7 +58,6 @@ class Answer extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Sets the answer
      *
      * @param int $answer
-     * @return void
      */
     public function setAnswer($answer)
     {
@@ -79,7 +78,6 @@ class Answer extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Sets the question
      *
      * @param \JVE\JvRanking\Domain\Model\Question $question
-     * @return void
      */
     public function setQuestion(\JVE\JvRanking\Domain\Model\Question $question)
     {
@@ -100,7 +98,6 @@ class Answer extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Sets the organizerUid
      *
      * @param int $organizerUid
-     * @return void
      */
     public function setOrganizerUid($organizerUid)
     {

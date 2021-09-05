@@ -138,10 +138,14 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
             /** @var Answer $answer */
             $answer = $this->answerRepository->getAnswerByOrganizerUid($question->getUid() , $organizer->getUid())->getFirst() ;
             if ( $answer) {
-                $ansers ++ ;
+                $answers ++ ;
+                if(  $notEnoughEvents && ( $answer->getStarttime() > time()  || $question->getHidden() ) ) {
+                    $answer->setAnswer(0);
+                }
                 $arr = array( "answer" => $answer->getAnswer() ,  'date' => $answer->getStarttime() ) ;
 
                 if( $answer->getStarttime() > time() || $question->getHidden() || $notEnoughEvents) {
+
                     $arr['readOnly'] = 'readonly';
                 } else {
                     $changeableAnswers ++ ;
@@ -172,7 +176,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
             }
             $question->setAnswer( $arr  ) ;
         }
-        $this->view->assign('ansers', $ansers);
+        $this->view->assign('answers', $answers);
         $this->view->assign('changeableAnswers', $changeableAnswers);
         $this->view->assign('count', count( $questions));
         $this->view->assign('questions', $questions);
