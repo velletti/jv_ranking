@@ -102,6 +102,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $changeableAnswers = 0 ;
         /** @var Question $question */
         foreach ( $questions as $key => $question ) {
+            $debug = '' ;
             $needToCountEvents = false ;
             $notEnoughEvents = false ;
             $filter = [] ;
@@ -128,10 +129,12 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                 $needToCountEvents = true ;
             }
             if (  $needToCountEvents  ) {
+
                 $events = $this->eventRepository->findByFilter($filter ) ;
                 if ( count($events) < 1  ) {
                     $notEnoughEvents = true ;
                 }
+                $debug = 'needToCountEvents ' . $needToCountEvents .  ' Cunt: : ' . count($events)  ;
             }
 
 
@@ -140,12 +143,15 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
             if ( $answer) {
                 $answers ++ ;
                 if(  $notEnoughEvents && ( $answer->getStarttime() > time()  || $question->getHidden() ) ) {
-                    $answer->setAnswer(0);
+                    $arr = array( 'date' => $answer->getStarttime() ) ;
+                    $debug .= " do not set answer " ;
+                } else {
+                    $arr = array( 'date' => $answer->getStarttime() ) ;
                 }
-                $arr = array( "answer" => $answer->getAnswer() ,  'date' => $answer->getStarttime() ) ;
+
 
                 if( $answer->getStarttime() > time() || $question->getHidden() || $notEnoughEvents) {
-
+                    $debug .= " set answer to readonly " ;
                     $arr['readOnly'] = 'readonly';
                 } else {
                     $changeableAnswers ++ ;
@@ -156,6 +162,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                 $arr = array() ;
                 if( $question->getHidden() || $notEnoughEvents ) {
                     $arr['readOnly'] = 'readonly';
+                    $debug .= " empty answer is readonly " ;
                 }else {
                     $changeableAnswers ++ ;
                 }
@@ -163,17 +170,20 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
             }
             if( $question->getAccess() ) {
                 if(!$this->hasUserGroup( $question->getAccess())) {
+                    $debug .= " User has no access " ;
                     if($question->isVisible()) {
                         unset($arr['answer']) ;
                         unset($arr['date']) ;
                         $arr['readOnly'] = 'readonly';
                         $changeableAnswers -- ;
+                        $debug .= " but Question is visible " ;
                     } else {
                         unset( $questions[$key] ) ;
                         $changeableAnswers -- ;
                     }
                 }
             }
+            $arr['debug'] = $debug ;
             $question->setAnswer( $arr  ) ;
         }
         $this->view->assign('answers', $answers);
