@@ -134,7 +134,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                 if ( count($events) < 1  ) {
                     $notEnoughEvents = true ;
                 }
-                $debug = 'needToCountEvents ' . $needToCountEvents .  ' - Event Count: : ' . count($events)  ;
+                $debug = 'needToCountEvents ' . $needToCountEvents .  ' - Event Count: : ' . count($events)  . " notEnoughEvents " . $notEnoughEvents;
             }
 
 
@@ -150,10 +150,16 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                 }
 
 
-                if( $answer->getStarttime() > time() || $question->getHidden() || $notEnoughEvents) {
+                if(  $question->getHidden() || $notEnoughEvents) {
+
                     $debug .= " | set answer to readonly " ;
                     $arr['readOnly'] = 'readonly';
                 } else {
+                    if( $answer->getStarttime() > time() && $answer->getAnswer() ) {
+                        $arr['readOnly'] = 'readonly';
+                        $debug .= " | set answer was YES so readonly " ;
+                    }
+
                     $changeableAnswers ++ ;
                 }
 
