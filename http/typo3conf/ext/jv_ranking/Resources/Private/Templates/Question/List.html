@@ -49,6 +49,10 @@
 						</div>
 						<div class="col-9 com-sm-8 col-md-7 {f:if(condition: question.answer.date , else: 'font-weight-bold')} {f:if(condition: question.answer.readOnly , then: 'font-weight-light font-italic' )} ">
 							{question.question}  {f:if(condition: question.answer.readOnly , then: '({question.answer.readOnly})')}
+							<span class="hidden d-none">
+								<br />
+								{question.answer.debug}
+							</span>
 						</div>
 						<div class="col-6 offset-3 col-sm-6 offset-sm-2 col-md-2 offset-md-0">
 							<f:if condition="{question.answer.readOnly}">
@@ -74,9 +78,7 @@
 								</f:else>
 							</f:if>
 						</div>
-						<div >
-							{question.answer.debug}
-						</div>
+
 
 					</div>
 					<f:variable name="modalBody">

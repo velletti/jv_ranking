@@ -134,7 +134,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                 if ( count($events) < 1  ) {
                     $notEnoughEvents = true ;
                 }
-                $debug = 'needToCountEvents ' . $needToCountEvents .  ' Cunt: : ' . count($events)  ;
+                $debug = 'needToCountEvents ' . $needToCountEvents .  ' - Event Count: : ' . count($events)  ;
             }
 
 
@@ -144,14 +144,14 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                 $answers ++ ;
                 if(  $notEnoughEvents && ( $answer->getStarttime() > time()  || $question->getHidden() ) ) {
                     $arr = array( 'date' => $answer->getStarttime() ) ;
-                    $debug .= " do not set answer " ;
+                    $debug .= "|  do not set answer " ;
                 } else {
                     $arr = array( 'date' => $answer->getStarttime() ) ;
                 }
 
 
                 if( $answer->getStarttime() > time() || $question->getHidden() || $notEnoughEvents) {
-                    $debug .= " set answer to readonly " ;
+                    $debug .= " | set answer to readonly " ;
                     $arr['readOnly'] = 'readonly';
                 } else {
                     $changeableAnswers ++ ;
@@ -162,7 +162,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                 $arr = array() ;
                 if( $question->getHidden() || $notEnoughEvents ) {
                     $arr['readOnly'] = 'readonly';
-                    $debug .= " empty answer is readonly " ;
+                    $debug .= " | empty answer is readonly " ;
                 }else {
                     $changeableAnswers ++ ;
                 }
@@ -176,7 +176,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                         unset($arr['date']) ;
                         $arr['readOnly'] = 'readonly';
                         $changeableAnswers -- ;
-                        $debug .= " but Question is visible " ;
+                        $debug .= " | but Question is visible " ;
                     } else {
                         unset( $questions[$key] ) ;
                         $changeableAnswers -- ;
