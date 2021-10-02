@@ -19,6 +19,12 @@
 				<f:if condition="{organizer.uid} == {user.uid}">
 				 	<f:else>
 						<div class="alert alert-warning">
+							<span class="position-right">
+								<span class="btn btn-secondary btn-sm right" data-toggle="collapse" data-target=".ranking-debug" title="debug">
+									<span class="fa fa-search small"></span>
+								</span>
+							</span>
+
 							Ranking für Veranstalter: {organizer.uid} - {organizer.name}
 						</div>
 					</f:else>
@@ -49,7 +55,7 @@
 						</div>
 						<div class="col-9 com-sm-8 col-md-7 {f:if(condition: question.answer.date , else: 'font-weight-bold')} {f:if(condition: question.answer.readOnly , then: 'font-weight-light font-italic' )} ">
 							{question.question}  {f:if(condition: question.answer.readOnly , then: '({question.answer.readOnly})')}
-							<span class="hidden d-none">
+							<span class="collapse ranking-debug">
 								<br />
 								{question.answer.debug}
 							</span>

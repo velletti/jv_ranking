@@ -131,22 +131,25 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
             if (  $needToCountEvents  ) {
 
                 $events = $this->eventRepository->findByFilter($filter ) ;
+                $debug = 'needToCountEvents ' . $needToCountEvents
+                    . ' filter= ' . var_export($filter , true )
+                    .  ' - Event Count: : ' . count($events)  ;
                 if ( count($events) < 1  ) {
                     $notEnoughEvents = true ;
+                    $debug .= " notEnoughEvents: " . $notEnoughEvents ;
                 }
-                $debug = 'needToCountEvents ' . $needToCountEvents .  ' - Event Count: : ' . count($events)  . " notEnoughEvents " . $notEnoughEvents;
-            }
 
+            }
 
             /** @var Answer $answer */
             $answer = $this->answerRepository->getAnswerByOrganizerUid($question->getUid() , $organizer->getUid())->getFirst() ;
             if ( $answer) {
+                $debug .= " | current Answer: " . $answer->getAnswer() ;
                 $answers ++ ;
+                $arr = array( 'answer' => $answer , 'date' => $answer->getStarttime() ) ;
                 if(  $notEnoughEvents && ( $answer->getStarttime() > time()  || $question->getHidden() ) ) {
-                    $arr = array( 'date' => $answer->getStarttime() ) ;
-                    $debug .= "|  do not set answer " ;
-                } else {
-                    $arr = array( 'date' => $answer->getStarttime() ) ;
+                    unset($arr['answer']) ;
+                    $debug .= " |  remove answer " ;
                 }
 
 
@@ -157,7 +160,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                 } else {
                     if( $answer->getStarttime() > time() && $answer->getAnswer() ) {
                         $arr['readOnly'] = 'readonly';
-                        $debug .= " | set answer was YES so readonly " ;
+                        $debug .= " | answer was YES so readonly " ;
                     }
 
                     $changeableAnswers ++ ;
@@ -165,6 +168,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
 
 
             } else {
+                $debug .= " | NO current Answer "  ;
                 $arr = array() ;
                 if( $question->getHidden() || $notEnoughEvents ) {
                     $arr['readOnly'] = 'readonly';
@@ -198,6 +202,8 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $this->view->assign('questions', $questions);
         $this->view->assign('organizer', $organizer);
         $this->view->assign('user',  $GLOBALS['TSFE']->fe_user->user );
+
+
     }
 
     /**
