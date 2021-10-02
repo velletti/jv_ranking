@@ -161,9 +161,11 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
                     if( $answer->getStarttime() > time() && $answer->getAnswer() ) {
                         $arr['readOnly'] = 'readonly';
                         $debug .= " | answer was YES so readonly " ;
+                    } else {
+                        $changeableAnswers ++ ;
                     }
 
-                    $changeableAnswers ++ ;
+
                 }
 
 
