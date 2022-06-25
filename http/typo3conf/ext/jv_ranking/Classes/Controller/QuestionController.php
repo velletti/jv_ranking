@@ -368,6 +368,9 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $debug .= "\n ***************************************************" ;
         $isVip = $this->hasUserGroup( 3 ) ;
         $lastLogin =  $GLOBALS['TSFE']->fe_user->user['lastlogin'] ;
+        if( $GLOBALS['TSFE']->fe_user->user['is_online'] > $lastLogin ) {
+            $lastLogin =  $GLOBALS['TSFE']->fe_user->user['is_online'] ;
+        }
 
         $result = RankingUtility::calculate($this->questionRepository, $organizer , $this->eventRepository , $this->answerRepository , $isVip , $lastLogin) ;
         $newSorting = $result['newsorting'] ;

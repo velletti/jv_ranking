@@ -63,14 +63,24 @@ class RankingUtility
         $debug .= "\n" . "possible Bonus: " . ($allAnswers * $allAnswers * 10 ) ;
         $debug .= "\n" . "Hidden Answers: " . $allHiddenAnswers ;
         $debug .= "\n ***************************************************" ;
-        $Basemax =  ((( date( "Y" )  - 1900 )* 80 )  -  date( "m" )) ;
+
+        // OLD: wir starten bei 7988 / 9679
+        // 25.6.2022 :  statt  5015 bei neuen Veranstaltern bzw. alten  510 .
+        // meu
+        // = (2022 - 1960) * 333 - ( 6 * 3 )  = 62 * 333 - 18 = 9282
+        // = (1999 - 1960) * 333 - ( 9 * 3 )  = 41 * 333 - 27 = 4055
+
+        $Basemax =  ((( date( "Y" )  - 1960 ) * 150 )  - ( 3 *  date( "m" )) ) ;
         $debug .= "\n" . "Base Value (maximum): " . $Basemax ;
         $crYear = date( "Y" , $organizer->getCrdate() ) ;
         $crMonth = date( "m" , $organizer->getCrdate() ) ;
 
-        $debug .= "\n" . "crYear: " . $crYear . " Month: " . $crMonth ;
-        // wir starten bei 5015 bzw. bei neuen <Veranstaltern derzeit dann bei 510 .
-        $base = ( $crYear - 1900 )  * 80  - $crMonth ;
+        $debug .= "\n" . "crYear: " . $crYear . " | Month: " . $crMonth ;
+        $debug .= "\n" . "crYear: " . $crYear . " - 1960 = " . ( $crYear - 1960 ) . " * 150 = " .   ( $crYear - 1960 ) * 150 . " - " . ( $crMonth  * 3 );
+
+
+        $base = (( $crYear - 1960 )  * 150 ) - ( $crMonth  * 3 ) ;
+
         $debug .= "\n" . "New Base: " . $base . " | got: " . ($Basemax - $base ) . " for long existing Organizer";
         $debug .= "\n" . "Total Bonus Value from Ranking: " . $totalValue . " / " . ( $allAnswersPoint + ($allAnswers * $allAnswers * 10) );
 
