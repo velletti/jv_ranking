@@ -1,6 +1,8 @@
 <?php
 namespace JVE\JvRanking\Domain\Repository;
 
+use TYPO3\CMS\Extbase\Persistence\Repository;
+use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 /***
  *
  * This file is part of the "JV Ranking Module" Extension for TYPO3 CMS.
@@ -11,17 +13,16 @@ namespace JVE\JvRanking\Domain\Repository;
  *  (c) 2019 Amerigo Vellett <typo3@velletti.de>, none
  *
  ***/
-
 /**
  * The repository for Questions
  */
-class QuestionRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
+class QuestionRepository extends Repository
 {
     /**
      * @var array
      */
     protected $defaultOrderings = [
-        'sorting' => \TYPO3\CMS\Extbase\Persistence\QueryInterface::ORDER_ASCENDING
+        'sorting' => QueryInterface::ORDER_ASCENDING
     ];
 
     public function getAllPages( )

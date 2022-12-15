@@ -1,6 +1,8 @@
 <?php
 namespace JVE\JvRanking\Domain\Repository;
 
+use TYPO3\CMS\Extbase\Persistence\Repository;
+use TYPO3\CMS\Extbase\Persistence\Generic\Storage\Typo3DbQueryParser;
 /***
  *
  * This file is part of the "JV Ranking Module" Extension for TYPO3 CMS.
@@ -11,11 +13,10 @@ namespace JVE\JvRanking\Domain\Repository;
  *  (c) 2019 Amerigo Velletti <typo3@velletti.de>, none
  *
  ***/
-
 /**
  * The repository for Answers
  */
-class AnswerRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
+class AnswerRepository extends Repository
 {
 
     public function getAnswerByOrganizerUid( $questionUid , $organizerUid )
@@ -58,7 +59,7 @@ class AnswerRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
 
         // new way to debug typo3 db queries
         if( $organizerUid == 485 && 1==2  ) {
-            $queryParser = $this->objectManager->get(\TYPO3\CMS\Extbase\Persistence\Generic\Storage\Typo3DbQueryParser::class);
+            $queryParser = $this->objectManager->get(Typo3DbQueryParser::class);
             var_dump($queryParser->convertQueryToDoctrineQueryBuilder($query)->getSQL());
             var_dump($queryParser->convertQueryToDoctrineQueryBuilder($query)->getParameters());
             die;

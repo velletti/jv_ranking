@@ -1,6 +1,8 @@
 <?php
 namespace JVE\JvRanking\Domain\Model;
 
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+use TYPO3\CMS\Extbase\Annotation\Validate;
 /***
  *
  * This file is part of the "JV Ranking Module" Extension for TYPO3 CMS.
@@ -11,17 +13,16 @@ namespace JVE\JvRanking\Domain\Model;
  *  (c) 2019 Amerigo Velletti <typo3@velletti.de>, none
  *
  ***/
-
 /**
  * Answer
  */
-class Answer extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
+class Answer extends AbstractEntity
 {
     /**
      * answer
      *
      * @var int
-     * @TYPO3\CMS\Extbase\Annotation\Validate("NotEmpty")
+     * @Validate("NotEmpty")
      */
     protected $answer = 0;
 
@@ -40,7 +41,7 @@ class Answer extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * question
      *
-     * @var \JVE\JvRanking\Domain\Model\Question
+     * @var Question
      */
     protected $question = null;
 
@@ -67,7 +68,7 @@ class Answer extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * Returns the question
      *
-     * @return \JVE\JvRanking\Domain\Model\Question $question
+     * @return Question $question
      */
     public function getQuestion()
     {
@@ -77,9 +78,9 @@ class Answer extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * Sets the question
      *
-     * @param \JVE\JvRanking\Domain\Model\Question $question
+     * @param Question $question
      */
-    public function setQuestion(\JVE\JvRanking\Domain\Model\Question $question)
+    public function setQuestion(Question $question)
     {
         $this->question = $question;
     }

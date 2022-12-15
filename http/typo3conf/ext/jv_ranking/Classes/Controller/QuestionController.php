@@ -1,6 +1,9 @@
 <?php
 namespace JVE\JvRanking\Controller;
 
+use JVE\JvEvents\Controller\BaseController;
+use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use JVE\JvEvents\Domain\Model\Category;
 use JVE\JvEvents\Domain\Model\Organizer;
 use JVE\JvEvents\Domain\Model\Tag;
@@ -32,7 +35,7 @@ use TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings;
 /**
  * QuestionController
  */
-class QuestionController extends \JVE\JvEvents\Controller\BaseController
+class QuestionController extends BaseController
 {
     /**
      * questionRepository
@@ -83,7 +86,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
      * @throws NoSuchArgumentException
      * @throws InvalidQueryException
      */
-    public function listAction()
+    public function listAction(): ResponseInterface
     {
         $organizer = $this->getOrganizer();
 
@@ -204,6 +207,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
         $this->view->assign('questions', $questions);
         $this->view->assign('organizer', $organizer);
         $this->view->assign('user',  $GLOBALS['TSFE']->fe_user->user );
+        return $this->htmlResponse();
 
 
     }
@@ -214,9 +218,10 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
      * @param Question $question
      * @return void
      */
-    public function showAction(Question $question)
+    public function showAction(Question $question): ResponseInterface
     {
         $this->view->assign('question', $question);
+        return $this->htmlResponse();
     }
 
     /**
@@ -229,7 +234,7 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
      */
     public function deleteAction(Question $question)
     {
-        $this->addFlashMessage('The object was NOT  deleted. This action is actually not needed ', '', \TYPO3\CMS\Core\Messaging\AbstractMessage::WARNING);
+        $this->addFlashMessage('The object was NOT  deleted. This action is actually not needed ', '', AbstractMessage::WARNING);
         $this->redirect('list');
     }
 
@@ -439,8 +444,8 @@ class QuestionController extends \JVE\JvEvents\Controller\BaseController
 
         $this->sendDebugEmail('tango@velletti.de','info@tangomuenchen.de' ,'[Ranking] ' . $organizer->getUid() . " - " . $organizer->getEmail() , $debug ) ;
 
-        $this->addFlashMessage("Ranking settings updated! Deine neue Position in der Veranstalterliste ist in spätestens 24 Stunden aktiv." , "Success" , \TYPO3\CMS\Core\Messaging\AbstractMessage::OK) ;
-        $this->addFlashMessage("Bisherige Position: ". $posOld . " Neue Position: " . $posNew . " " . $newGroupInfo  , "" , \TYPO3\CMS\Core\Messaging\AbstractMessage::NOTICE) ;
+        $this->addFlashMessage("Ranking settings updated! Deine neue Position in der Veranstalterliste ist in spätestens 24 Stunden aktiv." , "Success" , AbstractMessage::OK) ;
+        $this->addFlashMessage("Bisherige Position: ". $posOld . " Neue Position: " . $posNew . " " . $newGroupInfo  , "" , AbstractMessage::NOTICE) ;
 
         $this->redirect('list' , null , null, array( "organizer" => $organizer->getUid() ));
     }

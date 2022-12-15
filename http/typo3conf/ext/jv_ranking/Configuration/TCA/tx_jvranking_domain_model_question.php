@@ -24,19 +24,7 @@ return [
         'sys_language_uid' => [
             'exclude' => true,
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
-            'config' => [
-                'type' => 'select',
-                'renderType' => 'selectSingle',
-                'special' => 'languages',
-                'items' => [
-                    [
-                        'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.allLanguages',
-                        -1,
-                        'flags-multiple'
-                    ]
-                ],
-                'default' => 0,
-            ],
+            'config' => ['type' => 'language'],
         ],
         'l10n_parent' => [
             'displayCond' => 'FIELD:sys_language_uid:>:0',
@@ -199,7 +187,7 @@ return [
         ),
         'access' => array(
             'exclude' => 0,
-            'label' => 'LLL:EXT:lang/Resources/Private/Language/locallang_general.xlf:LGL.fe_group',
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.fe_group',
             'config' => array(
                 'type' => 'select',
                 'renderType' => 'selectMultipleSideBySide',
@@ -207,18 +195,17 @@ return [
                 'maxitems' => 1,
                 'items' => array(
                     array(
-                        'LLL:EXT:lang/Resources/Private/Language/locallang_general.xlf:LGL.any_login',
+                        'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.any_login',
                         -2
                     ),
                     array(
-                        'LLL:EXT:lang/Resources/Private/Language/locallang_general.xlf:LGL.usergroups',
+                        'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.usergroups',
                         '--div--'
                     )
                 ),
                 'exclusiveKeys' => '-1,-2',
                 'foreign_table' => 'fe_groups',
-                'foreign_table_where' => 'ORDER BY fe_groups.title',
-                'enableMultiSelectFilterTextfield' => true
+                'foreign_table_where' => 'ORDER BY fe_groups.title'
             )
         ),
 
