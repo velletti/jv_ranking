@@ -25,6 +25,11 @@ class QuestionRepository extends Repository
         'sorting' => QueryInterface::ORDER_ASCENDING
     ];
 
+    public function getTYPO3QuerySettings(): \TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface
+    {
+        return $this->createQuery()->getQuerySettings() ;
+    }
+
     public function getAllPages( )
     {
         $query = $this->createQuery();

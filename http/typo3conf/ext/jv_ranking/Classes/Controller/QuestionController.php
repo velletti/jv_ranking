@@ -91,7 +91,7 @@ class QuestionController extends BaseController
         $organizer = $this->getOrganizer();
 
         /** @var Typo3QuerySettings $querysettings */
-        $querysettings = GeneralUtility::makeInstance("TYPO3\\CMS\\Extbase\\Persistence\\Generic\\Typo3QuerySettings" ) ;
+        $querysettings = $this->questionRepository->getTYPO3QuerySettings() ;
         // toDo set storage Pid here
         $querysettings->setStoragePageIds(array( 52 )) ;
         $this->answerRepository->setDefaultQuerySettings( $querysettings );
@@ -275,7 +275,9 @@ class QuestionController extends BaseController
         }
 
 
-        $querysettings = new Typo3QuerySettings ;
+        /** @var Typo3QuerySettings $querysettings */
+        $querysettings = $this->questionRepository->getTYPO3QuerySettings() ;
+
         // toDo set storage Pid here from TypoScript or something else ..
         $querysettings->setStoragePageIds(array( 52 )) ;
         $this->questionRepository->setDefaultQuerySettings( $querysettings );
