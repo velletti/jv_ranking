@@ -77,7 +77,7 @@
 							<f:if condition="{question.answer.readOnly}">
 								<f:then>
 									<span class="h-100 w-100 d-inline-block position-absolute" style="z-index: 9999" onclick="return true;"></span>
-									<input name="tx_jvranking_pi1[questions][{question.uid}]"  {question.answer.readOnly} type="checkbox" {f:if(condition: '{question.answer.answer}' , then : 'checked' )} data-onstyle="primary" data-offstyle="secondary" data-toggle="toggle" data-style="ios ">
+									<input name="tx_jvranking_pi1[questions][{question.uid}]"  {question.answer.readOnly} type="checkbox" {f:if(condition: '{question.answer.answer}' , then : 'checked' )} data-onstyle="success" data-offstyle="secondary" data-toggle="toggle" data-style="ios ">
 								</f:then>
 								<f:else>
 									<input name="tx_jvranking_pi1[questions][{question.uid}]"  {question.answer.readOnly} type="checkbox" {f:if(condition: '{question.answer.answer}' , then : 'checked' )} data-onstyle="success" data-offstyle="secondary" data-toggle="toggle" data-style="ios ">
