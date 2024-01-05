@@ -18,11 +18,11 @@ $EM_CONF['jv_ranking'] = [
     'author_email' => 'typo3@velletti.de',
     'state' => 'beta',
     'clearCacheOnLoad' => true,
-    'version' => '10.4.1',
+    'version' => '12.4.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '10.4.0-10.4.99',
-            'jv_events' => '^10.4',
+            'typo3' => '12.4.0-12.4.99',
+            'jv_events' => '^12.4',
         ],
         'conflicts' => [],
         'suggests' => [],
