@@ -86,123 +86,127 @@ class QuestionController extends BaseController
         $answers = null;
         $organizer = $this->getOrganizer();
 
-        /** @var Typo3QuerySettings $querysettings */
-        $querysettings = $this->questionRepository->getTYPO3QuerySettings() ;
-        // toDo set storage Pid here
-        $querysettings->setStoragePageIds([$this->getStoragePid()]) ;
-        $this->answerRepository->setDefaultQuerySettings( $querysettings );
+        if ($organizer) {
 
-        $querysettings->setIgnoreEnableFields(TRUE) ;
-        $this->questionRepository->setDefaultQuerySettings( $querysettings );
-
-
-        $questions = $this->questionRepository->findAll()->toArray() ;
-        $ansers = 0 ;
-        $changeableAnswers = 0 ;
-        /** @var Question $question */
-        foreach ( $questions as $key => $question ) {
-            $debug = '' ;
-            $needToCountEvents = false ;
-            $notEnoughEvents = false ;
-            $filter = [] ;
-            $filter['organizer'] = $organizer->getUid() ;
-            $filter['startDate'] = -100 ;
-            $filter['maxDays'] = 365 ;
-
-            $tags = $question->getTags() ;
-            if ( $tags && count( $tags ) > 0 ) {
-                $tags = $tags->getArray() ;
-                if ( is_array($tags)) {
-                    /** @var Tag $tag */
-                    foreach ($tags as $tag) {
-                        $filter['tags'] .= $tag->getUid() . "," ;
+    
+            /** @var Typo3QuerySettings $querysettings */
+            $querysettings = $this->questionRepository->getTYPO3QuerySettings();
+            // toDo set storage Pid here
+            $querysettings->setStoragePageIds([$this->getStoragePid()]);
+            $this->answerRepository->setDefaultQuerySettings($querysettings);
+    
+            $querysettings->setIgnoreEnableFields(TRUE);
+            $this->questionRepository->setDefaultQuerySettings($querysettings);
+    
+    
+            $questions = $this->questionRepository->findAll()->toArray();
+            $ansers = 0;
+            $changeableAnswers = 0;
+            /** @var Question $question */
+            foreach ($questions as $key => $question) {
+                $debug = '';
+                $needToCountEvents = false;
+                $notEnoughEvents = false;
+                $filter = [];
+                $filter['organizer'] = $organizer->getUid();
+                $filter['startDate'] = -100;
+                $filter['maxDays'] = 365;
+    
+                $tags = $question->getTags();
+                if ($tags && count($tags) > 0) {
+                    $tags = $tags->getArray();
+                    if (is_array($tags)) {
+                        /** @var Tag $tag */
+                        foreach ($tags as $tag) {
+                            $filter['tags'] .= $tag->getUid() . ",";
+                        }
+                        $needToCountEvents = true;
                     }
-                    $needToCountEvents = true ;
                 }
-            }
-            /** @var Category $category */
-            foreach ($question->getEventCategory() as $category ) {
-                if ( is_object( $category )) {
-                    $filter['categories'] .= $category->getUid() . "," ;
+                /** @var Category $category */
+                foreach ($question->getEventCategory() as $category) {
+                    if (is_object($category)) {
+                        $filter['categories'] .= $category->getUid() . ",";
+                    }
+                    $needToCountEvents = true;
                 }
-                $needToCountEvents = true ;
-            }
-            if (  $needToCountEvents  ) {
-
-                $events = $this->eventRepository->findByFilter($filter ) ;
-                $debug = 'needToCountEvents ' . $needToCountEvents
-                    . ' filter= ' . var_export($filter , true )
-                    .  ' - Event Count: : ' . (is_countable($events) ? count($events) : 0)  ;
-                if ( (is_countable($events) ? count($events) : 0) < 1  ) {
-                    $notEnoughEvents = true ;
-                    $debug .= " notEnoughEvents: " . $notEnoughEvents ;
+                if ($needToCountEvents) {
+    
+                    $events = $this->eventRepository->findByFilter($filter);
+                    $debug = 'needToCountEvents ' . $needToCountEvents
+                        . ' filter= ' . var_export($filter, true)
+                        . ' - Event Count: : ' . (is_countable($events) ? count($events) : 0);
+                    if ((is_countable($events) ? count($events) : 0) < 1) {
+                        $notEnoughEvents = true;
+                        $debug .= " notEnoughEvents: " . $notEnoughEvents;
+                    }
+    
                 }
-
-            }
-
-            /** @var Answer $answer */
-            $answer = $this->answerRepository->getAnswerByOrganizerUid($question->getUid() , $organizer->getUid())->getFirst() ;
-            if ( $answer) {
-                $debug .= " | current Answer: " . $answer->getAnswer() ;
-                $answers ++ ;
-                $arr = ['answer' => $answer, 'date' => $answer->getStarttime()] ;
-                if(  $notEnoughEvents && ( $answer->getStarttime() > time()  || $question->getHidden() ) ) {
-                    unset($arr['answer']) ;
-                    $debug .= " |  remove answer " ;
-                }
-
-
-                if(  $question->getHidden() || $notEnoughEvents) {
-
-                    $debug .= " | set answer to readonly " ;
-                    $arr['readOnly'] = 'readonly';
+    
+                /** @var Answer $answer */
+                $answer = $this->answerRepository->getAnswerByOrganizerUid($question->getUid(), $organizer->getUid())->getFirst();
+                if ($answer) {
+                    $debug .= " | current Answer: " . $answer->getAnswer();
+                    $answers++;
+                    $arr = ['answer' => $answer, 'date' => $answer->getStarttime()];
+                    if ($notEnoughEvents && ($answer->getStarttime() > time() || $question->getHidden())) {
+                        unset($arr['answer']);
+                        $debug .= " |  remove answer ";
+                    }
+    
+    
+                    if ($question->getHidden() || $notEnoughEvents) {
+    
+                        $debug .= " | set answer to readonly ";
+                        $arr['readOnly'] = 'readonly';
+                    } else {
+                        if ($answer->getStarttime() > time() && $answer->getAnswer()) {
+                            $arr['readOnly'] = 'readonly';
+                            $debug .= " | answer was YES so readonly ";
+                        } else {
+                            $changeableAnswers++;
+                        }
+    
+    
+                    }
+    
+    
                 } else {
-                    if( $answer->getStarttime() > time() && $answer->getAnswer() ) {
+                    $debug .= " | NO current Answer ";
+                    $arr = [];
+                    if ($question->getHidden() || $notEnoughEvents) {
                         $arr['readOnly'] = 'readonly';
-                        $debug .= " | answer was YES so readonly " ;
+                        $debug .= " | empty answer is readonly ";
                     } else {
-                        $changeableAnswers ++ ;
+                        $changeableAnswers++;
                     }
-
-
+    
                 }
-
-
-            } else {
-                $debug .= " | NO current Answer "  ;
-                $arr = [] ;
-                if( $question->getHidden() || $notEnoughEvents ) {
-                    $arr['readOnly'] = 'readonly';
-                    $debug .= " | empty answer is readonly " ;
-                }else {
-                    $changeableAnswers ++ ;
-                }
-
-            }
-            if( $question->getAccess() ) {
-                if(!$this->hasUserGroup( $question->getAccess())) {
-                    $debug .= " User has no access " ;
-                    if($question->isVisible()) {
-                        unset($arr['answer']) ;
-                        unset($arr['date']) ;
-                        $arr['readOnly'] = 'readonly';
-                        $changeableAnswers -- ;
-                        $debug .= " | but Question is visible " ;
-                    } else {
-                        unset( $questions[$key] ) ;
-                        $changeableAnswers -- ;
+                if ($question->getAccess()) {
+                    if (!$this->hasUserGroup($question->getAccess())) {
+                        $debug .= " User has no access ";
+                        if ($question->isVisible()) {
+                            unset($arr['answer']);
+                            unset($arr['date']);
+                            $arr['readOnly'] = 'readonly';
+                            $changeableAnswers--;
+                            $debug .= " | but Question is visible ";
+                        } else {
+                            unset($questions[$key]);
+                            $changeableAnswers--;
+                        }
                     }
                 }
+                $arr['debug'] = $debug;
+                $question->setAnswer($arr);
             }
-            $arr['debug'] = $debug ;
-            $question->setAnswer( $arr  ) ;
         }
         $this->view->assign('answers', $answers);
         $this->view->assign('changeableAnswers', $changeableAnswers);
-        $this->view->assign('count', count( $questions));
+        $this->view->assign('count', (is_countable($questions) ? count( $questions) : 0 ));
         $this->view->assign('questions', $questions);
         $this->view->assign('organizer', $organizer);
-        $this->view->assign('user',  $GLOBALS['TSFE']->fe_user->user );
+        $this->view->assign('user',  $this->getUser() );
         return $this->htmlResponse();
 
 
@@ -448,6 +452,10 @@ class QuestionController extends BaseController
     }
     public function getStoragePid() {
         return isset($this->settings['storagePid']) ? intval($this->settings['storagePid']) : $this::storagePid ;
+    }
+    
+    public function getUser() {
+        return ( $this->request->getAttribute('frontend.user')->user ) ?? null ;
     }
 
 }
