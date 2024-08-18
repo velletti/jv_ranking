@@ -1,12 +1,12 @@
 <?php
 namespace JVE\JvRanking\Controller;
 
-use JVE\JvEvents\Controller\BaseController;
+use JVelletti\JvEvents\Controller\BaseController;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Messaging\AbstractMessage;
-use JVE\JvEvents\Domain\Model\Category;
-use JVE\JvEvents\Domain\Model\Organizer;
-use JVE\JvEvents\Domain\Model\Tag;
+use JVelletti\JvEvents\Domain\Model\Category;
+use JVelletti\JvEvents\Domain\Model\Organizer;
+use JVelletti\JvEvents\Domain\Model\Tag;
 use JVE\JvRanking\Domain\Model\Answer;
 use JVE\JvRanking\Domain\Model\Question;
 use JVE\JvRanking\Domain\Repository\AnswerRepository;
@@ -37,6 +37,7 @@ use TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings;
  */
 class QuestionController extends BaseController
 {
+    const storagePid = 52 ;
     /**
      * questionRepository
      *
@@ -59,21 +60,15 @@ class QuestionController extends BaseController
      */
     public function initializeAction()
     {
-        $this->questionRepository = $this->objectManager->get("JVE\JvRanking\Domain\Repository\QuestionRepository") ;
-        $this->answerRepository = $this->objectManager->get("JVE\JvRanking\Domain\Repository\AnswerRepository") ;
+        $this->questionRepository = GeneralUtility::makeInstance(QuestionRepository::class) ;
+        $this->answerRepository = GeneralUtility::makeInstance(AnswerRepository::class) ;
     }
 
-    /**
-     * @param AnswerRepository $answerRepository
-     */
     public function injectAnswerRepository(AnswerRepository $answerRepository)
     {
         $this->answerRepository = $answerRepository;
     }
 
-    /**
-     * @param QuestionRepository $questionRepository
-     */
     public function injectQuestionRepository(QuestionRepository $questionRepository)
     {
         $this->questionRepository = $questionRepository;
@@ -88,12 +83,13 @@ class QuestionController extends BaseController
      */
     public function listAction(): ResponseInterface
     {
+        $answers = null;
         $organizer = $this->getOrganizer();
 
         /** @var Typo3QuerySettings $querysettings */
         $querysettings = $this->questionRepository->getTYPO3QuerySettings() ;
         // toDo set storage Pid here
-        $querysettings->setStoragePageIds(array( 52 )) ;
+        $querysettings->setStoragePageIds([$this->getStoragePid()]) ;
         $this->answerRepository->setDefaultQuerySettings( $querysettings );
 
         $querysettings->setIgnoreEnableFields(TRUE) ;
@@ -136,8 +132,8 @@ class QuestionController extends BaseController
                 $events = $this->eventRepository->findByFilter($filter ) ;
                 $debug = 'needToCountEvents ' . $needToCountEvents
                     . ' filter= ' . var_export($filter , true )
-                    .  ' - Event Count: : ' . count($events)  ;
-                if ( count($events) < 1  ) {
+                    .  ' - Event Count: : ' . (is_countable($events) ? count($events) : 0)  ;
+                if ( (is_countable($events) ? count($events) : 0) < 1  ) {
                     $notEnoughEvents = true ;
                     $debug .= " notEnoughEvents: " . $notEnoughEvents ;
                 }
@@ -149,7 +145,7 @@ class QuestionController extends BaseController
             if ( $answer) {
                 $debug .= " | current Answer: " . $answer->getAnswer() ;
                 $answers ++ ;
-                $arr = array( 'answer' => $answer , 'date' => $answer->getStarttime() ) ;
+                $arr = ['answer' => $answer, 'date' => $answer->getStarttime()] ;
                 if(  $notEnoughEvents && ( $answer->getStarttime() > time()  || $question->getHidden() ) ) {
                     unset($arr['answer']) ;
                     $debug .= " |  remove answer " ;
@@ -174,7 +170,7 @@ class QuestionController extends BaseController
 
             } else {
                 $debug .= " | NO current Answer "  ;
-                $arr = array() ;
+                $arr = [] ;
                 if( $question->getHidden() || $notEnoughEvents ) {
                     $arr['readOnly'] = 'readonly';
                     $debug .= " | empty answer is readonly " ;
@@ -215,7 +211,6 @@ class QuestionController extends BaseController
     /**
      * action show
      *
-     * @param Question $question
      * @return void
      */
     public function showAction(Question $question): ResponseInterface
@@ -227,7 +222,6 @@ class QuestionController extends BaseController
     /**
      * action delete
      *
-     * @param Question $question
      * @return void
      * @throws StopActionException
      * @throws UnsupportedRequestTypeException
@@ -235,7 +229,7 @@ class QuestionController extends BaseController
     public function deleteAction(Question $question)
     {
         $this->addFlashMessage('The object was NOT  deleted. This action is actually not needed ', '', AbstractMessage::WARNING);
-        $this->redirect('list');
+        return $this->redirect('list');
     }
 
     /**
@@ -251,14 +245,15 @@ class QuestionController extends BaseController
      */
     public function saveAction()
     {
+        $organizer = null;
+        $questions = [];
         if ( $this->request->hasArgument("questions") ) {
             $questions = $this->request->getArgument("questions") ;
         }
         /** @var Organizer $organizer */
         try {
             $organizer = $this->getOrganizer();
-        } catch (NoSuchArgumentException $e) {
-        } catch (InvalidQueryException $e) {
+        } catch (NoSuchArgumentException|InvalidQueryException) {
         }
 
 
@@ -279,7 +274,7 @@ class QuestionController extends BaseController
         $querysettings = $this->questionRepository->getTYPO3QuerySettings() ;
 
         // toDo set storage Pid here from TypoScript or something else ..
-        $querysettings->setStoragePageIds(array( 52 )) ;
+        $querysettings->setStoragePageIds([$this->getStoragePid()]) ;
         $this->questionRepository->setDefaultQuerySettings( $querysettings );
 
         $querysettings->setIgnoreEnableFields(TRUE) ;
@@ -346,14 +341,14 @@ class QuestionController extends BaseController
                 $debug .= "\n Now adding new answers: " ;
                 $debug .= "\n ***************************************************" ;
                 /** @var Answer $newAnswer */
-                $newAnswer = $this->objectManager->get( "JVE\\JvRanking\\Domain\\Model\\Answer")  ;
+                $newAnswer = GeneralUtility::makeInstance( Answer::class)  ;
                 /** @var Question $questionObj */
                 $questionObj = $this->questionRepository->findByUid($id ) ;
                 if( is_object( $questionObj )) {
                     $debug .= "\n Answer Added: " . $questionObj->getQuestion() ;
                     $totalValue = $totalValue + $questionObj->getValue()  . " val: " . $questionObj->getValue()  ;
 
-                    $newAnswer->setPid(52) ;
+                    $newAnswer->setPid($this->getStoragePid() ) ;
                     $newAnswer->setOrganizerUid($organizer->getUid()) ;
                     $newAnswer->setQuestion($questionObj) ;
                     $newAnswer->setAnswer( 1 ) ;
@@ -449,7 +444,10 @@ class QuestionController extends BaseController
         $this->addFlashMessage("Ranking settings updated! Deine neue Position in der Veranstalterliste ist in spätestens 24 Stunden aktiv." , "Success" , AbstractMessage::OK) ;
         $this->addFlashMessage("Bisherige Position: ". $posOld . " Neue Position: " . $posNew . " " . $newGroupInfo  , "" , AbstractMessage::NOTICE) ;
 
-        $this->redirect('list' , null , null, array( "organizer" => $organizer->getUid() ));
+        return $this->redirect('list' , null , null, ["organizer" => $organizer->getUid()]);
+    }
+    public function getStoragePid() {
+        return isset($this->settings['storagePid']) ? intval($this->settings['storagePid']) : $this::storagePid ;
     }
 
 }

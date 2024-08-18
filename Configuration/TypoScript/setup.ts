@@ -12,6 +12,9 @@ plugin.tx_jvranking_pi1 {
         storagePid = {$plugin.tx_jvranking_pi1.persistence.storagePid}
         #recursive = 1
     }
+    settings {
+        storagePid = {$plugin.tx_jvranking_pi1.persistence.storagePid}
+    }
     features {
         #skipDefaultArguments = 1
         # if set to 1, the enable fields are ignored in BE context

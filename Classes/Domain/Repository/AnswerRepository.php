@@ -21,6 +21,7 @@ class AnswerRepository extends Repository
 
     public function getAnswerByOrganizerUid( $questionUid , $organizerUid )
     {
+        $constraints = [];
         $query = $this->createQuery();
         $querySettings = $query->getQuerySettings() ;
         $querySettings->setRespectStoragePage(false);
@@ -30,11 +31,11 @@ class AnswerRepository extends Repository
         $query->setLimit(1) ;
         $constraints[] = $query->equals('organizerUid', $organizerUid ) ;
         $constraints[] = $query->equals('question', $questionUid ) ;
-        $query->matching($query->logicalAnd($constraints));
+        $query->matching($query->logicalAnd(...$constraints));
         $res = $query->execute() ;
 
         // new way to debug typo3 db queries
-        // $queryParser = $this->objectManager->get(\TYPO3\CMS\Extbase\Persistence\Generic\Storage\Typo3DbQueryParser::class);
+        // $queryParser = GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Persistence\Generic\Storage\Typo3DbQueryParser::class);
         // var_dump($queryParser->convertQueryToDoctrineQueryBuilder($query)->getSQL());
         // var_dump($queryParser->convertQueryToDoctrineQueryBuilder($query)->getParameters()) ;
         // die;
@@ -43,6 +44,7 @@ class AnswerRepository extends Repository
 
     public function getAllAnswersByOrganizerUid(  $organizerUid )
     {
+        $constraints = [];
         $query = $this->createQuery();
         $querySettings = $query->getQuerySettings() ;
         $querySettings->setRespectStoragePage(false);
@@ -53,13 +55,13 @@ class AnswerRepository extends Repository
         $constraints[] = $query->equals('organizerUid', $organizerUid ) ;
         $constraints[] = $query->equals('hidden', 0 ) ;
         $constraints[] = $query->equals('deleted', 0 ) ;
-        $query->matching($query->logicalAnd($constraints));
+        $query->matching($query->logicalAnd(...$constraints));
 
         $res = $query->execute() ;
 
         // new way to debug typo3 db queries
         if( $organizerUid == 485 && 1==2  ) {
-            $queryParser = $this->objectManager->get(Typo3DbQueryParser::class);
+            $queryParser = GeneralUtility::makeInstance(Typo3DbQueryParser::class);
             var_dump($queryParser->convertQueryToDoctrineQueryBuilder($query)->getSQL());
             var_dump($queryParser->convertQueryToDoctrineQueryBuilder($query)->getParameters());
             die;

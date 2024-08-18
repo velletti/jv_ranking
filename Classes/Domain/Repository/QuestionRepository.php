@@ -1,6 +1,7 @@
 <?php
 namespace JVE\JvRanking\Domain\Repository;
 
+use TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 /***
@@ -25,7 +26,7 @@ class QuestionRepository extends Repository
         'sorting' => QueryInterface::ORDER_ASCENDING
     ];
 
-    public function getTYPO3QuerySettings(): \TYPO3\CMS\Extbase\Persistence\Generic\QuerySettingsInterface
+    public function getTYPO3QuerySettings(): QuerySettingsInterface
     {
         return $this->createQuery()->getQuerySettings() ;
     }

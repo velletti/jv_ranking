@@ -4,8 +4,8 @@ namespace JVE\JvRanking\Domain\Model;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Annotation\Validate;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
-use JVE\JvEvents\Domain\Model\Category;
-use JVE\JvEvents\Domain\Model\Tag;
+use JVelletti\JvEvents\Domain\Model\Category;
+use JVelletti\JvEvents\Domain\Model\Tag;
 /***
  *
  * This file is part of the "JV Ranking Module" Extension for TYPO3 CMS.

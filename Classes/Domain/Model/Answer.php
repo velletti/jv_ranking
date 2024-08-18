@@ -77,8 +77,6 @@ class Answer extends AbstractEntity
 
     /**
      * Sets the question
-     *
-     * @param Question $question
      */
     public function setQuestion(Question $question)
     {

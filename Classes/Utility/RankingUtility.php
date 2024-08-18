@@ -4,9 +4,9 @@
 namespace JVE\JvRanking\Utility;
 
 
-use JVE\JvEvents\Domain\Model\Category;
-use JVE\JvEvents\Domain\Model\Organizer;
-use JVE\JvEvents\Domain\Repository\EventRepository;
+use JVelletti\JvEvents\Domain\Model\Category;
+use JVelletti\JvEvents\Domain\Model\Organizer;
+use JVelletti\JvEvents\Domain\Repository\EventRepository;
 use JVE\JvRanking\Domain\Model\Answer;
 use JVE\JvRanking\Domain\Model\Question;
 use JVE\JvRanking\Domain\Repository\AnswerRepository;
@@ -26,6 +26,7 @@ class RankingUtility
      */
     static public function calculate($questionRepository, $organizer , $eventRepository , $answerRepository , $isVip , $lastLogin )
     {
+        $filter = [];
         $debug = "\n calculate points for organizer .... : " . $organizer->getUid()  ;
         $answers = $answerRepository->getAllAnswersByOrganizerUid( $organizer->getUid() )->toArray() ;
         $totalValue= 0 ;
@@ -111,7 +112,7 @@ class RankingUtility
 
         // Veranstalter mit vielen Events bekommen noch mal einen Bonus
         $events = $eventRepository->findByFilter($filter ) ;
-        $eventCount = count( $events) ;
+        $eventCount = is_countable($events) ? count( $events) : 0 ;
         $danceBonusMax += 800 ;
         $debug .= "\n" . "Event Count: (max 200 aber 4 fach )  : " .  $eventCount  ;
         $newSorting = $newSorting - ( min( $eventCount , 200 ) * 4 ) ;
@@ -121,7 +122,7 @@ class RankingUtility
         // tanz events noch mal bewerten
         $filter['categories'] = "1," ;
         $events = $eventRepository->findByFilter($filter ) ;
-        $eventCount = count( $events) ;
+        $eventCount = is_countable($events) ? count( $events) : 0 ;
         $debug .= "\n" . "Dance Event Count: (max 50 aber 10 fach) : " .  $eventCount  ;
         $newSorting = $newSorting - ( min( $eventCount , 50 ) * 10 )  ;
 
@@ -134,7 +135,7 @@ class RankingUtility
         // live Musik: muss belohnt werden
         $filter['tags'] = "4," ;
         $events = $eventRepository->findByFilter($filter ) ;
-        $eventCount = count( $events) ;
+        $eventCount = is_countable($events) ? count( $events) : 0 ;
         $debug .= "\n" . "LIVE Musik  Event Count: (max 5 aber 100 fach ): " .  $eventCount  ;
         $newSorting = $newSorting - ( min( $eventCount , 5) * 100 )  ;
         $danceBonusMax +=  500 ;
@@ -144,7 +145,7 @@ class RankingUtility
         // Show : muss auch etwas belohnt werden
         $filter['tags'] = "11," ;
         $events = $eventRepository->findByFilter($filter ) ;
-        $eventCount = count( $events) ;
+        $eventCount = is_countable($events) ? count( $events) : 0 ;
         $danceBonusMax +=  50 ;
         $danceBonus +=  ( min( $eventCount , 10 ) * 5 )    ;
         $debug .= "\n" . "SHOW Events Count: (max 10 aber 5 fach ): " .  $eventCount  ;
@@ -200,7 +201,7 @@ class RankingUtility
             $debug .= "\n" . "NewSorting after LastLogin: " . date("d.m.Y" , $lastLogin ) . " -> got malus: " .  $lastLoginMalus . " => ". $newSorting ;
         }
         /* +++++++++++++    SET New Sorting for J Velletti always to 10  +++++++++++++++++++++++++++++++++++ */
-        if( strtolower( $organizer->getEmail()) == "joergvelletti@gmx.de") {
+        if( strtolower( (string) $organizer->getEmail()) == "joergvelletti@gmx.de") {
             $newSorting = 10  ;
         }
         return ["newsorting" => $newSorting , "debug" => $debug , "hasGroup" => $hasGroup , "categories" => $categories  ] ;

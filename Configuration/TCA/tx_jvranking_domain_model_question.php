@@ -5,7 +5,6 @@ return [
         'label' => 'question',
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
-        'cruser_id' => 'cruser_id',
         'sortby' => 'sorting',
         'languageField' => 'sys_language_uid',
         'transOrigPointerField' => 'l10n_parent',
@@ -34,7 +33,7 @@ return [
                 'renderType' => 'selectSingle',
                 'default' => 0,
                 'items' => [
-                    ['', 0],
+                    ['label' => '', 'value' => 0],
                 ],
                 'foreign_table' => 'tx_jvranking_domain_model_question',
                 'foreign_table_where' => 'AND tx_jvranking_domain_model_question.pid=###CURRENT_PID### AND tx_jvranking_domain_model_question.sys_language_uid IN (-1,0)',
@@ -52,7 +51,7 @@ return [
                 'type' => 'check',
                 'items' => [
                     '1' => [
-                        '0' => 'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.enabled'
+                        'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.enabled'
                     ]
                 ],
             ],
@@ -64,7 +63,8 @@ return [
             'config' => [
                 'type' => 'input',
                 'size' => 30,
-                'eval' => 'trim,required'
+                'eval' => 'trim',
+                'required' => true
             ],
         ],
         'description' => [
@@ -81,142 +81,57 @@ return [
             'exclude' => true,
             'label' => 'LLL:EXT:jv_ranking/Resources/Private/Language/locallang_db.xlf:tx_jvranking_domain_model_question.value',
             'config' => [
-                'type' => 'input',
-                'size' => 4,
-                'eval' => 'int'
+                'type' => 'number',
+                'size' => 4
             ]
         ],
         'sorting' => [
             'exclude' => true,
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.sorting',
             'config' => [
-                'type' => 'input',
-                'size' => 11,
-                'eval' => 'int'
+                'type' => 'number',
+                'size' => 11
             ]
         ],
         'valid_until' => [
             'exclude' => true,
             'label' => 'LLL:EXT:jv_ranking/Resources/Private/Language/locallang_db.xlf:tx_jvranking_domain_model_question.valid_until',
             'config' => [
-                'type' => 'input',
-                'size' => 4,
-                'eval' => 'int'
+                'type' => 'number',
+                'size' => 4
             ]
         ],
-        'event_category' => array(
-            'exclude' => 0,
-            'label' => 'LLL:EXT:jv_events/Resources/Private/Language/locallang_db.xlf:tx_jvevents_domain_model_event.event_category',
-            'config' => array(
-                'type' => 'select',
-                'renderType' => 'selectMultipleSideBySide',
-                'foreign_table' => 'tx_jvevents_domain_model_category',
+        'event_category' => ['exclude' => 0, 'label' => 'LLL:EXT:jv_events/Resources/Private/Language/locallang_db.xlf:tx_jvevents_domain_model_event.event_category', 'config' => [
+            'type' => 'select',
+            'renderType' => 'selectMultipleSideBySide',
+            'foreign_table' => 'tx_jvevents_domain_model_category',
+            // 'foreign_table_where' => ' AND tx_jvevents_domain_model_category.type = 0 AND tx_jvevents_domain_model_category.sys_language_uid in (-1, 0)',
+            'foreign_table_where' => ' AND tx_jvevents_domain_model_category.type = 0 AND (tx_jvevents_domain_model_category.sys_language_uid = 0 OR tx_jvevents_domain_model_category.l10n_parent = 0) ORDER BY tx_jvevents_domain_model_category.title',
+            'itemsProcFunc' => 'JVE\\JvEvents\\UserFunc\\Flexforms->TranslateMMvalues',
+            'MM' => 'tx_jvranking_question_category_mm',
+            'size' => 10,
+            'autoSizeMax' => 30,
+            'maxitems' => 9999,
+            'multiple' => 0,
+            'fieldControl' => ['addRecord' => ['disabled' => false, 'options' => ['pid' => '###CURRENT_PID###', 'setValue' => 'prepend', 'icon' => 'actions-add', 'table' => 'tx_jvevents_domain_model_category', 'title' => 'Create new']], 'editPopup' => ['disabled' => false, 'options' => ['icon' => 'actions-open', 'windowOpenParameters' => 'height=350,width=580,status=0,menubar=0,scrollbars=1', 'title' => 'Edit']]],
+        ]],
+        'tags' => ['exclude' => 0, 'label' => 'LLL:EXT:jv_events/Resources/Private/Language/locallang_db.xlf:tx_jvevents_domain_model_event.tags', 'config' => [
+            'type' => 'select',
+            'renderType' => 'selectMultipleSideBySide',
+            'foreign_table' => 'tx_jvevents_domain_model_tag',
+            //'foreign_table_where' => ' AND tx_jvevents_domain_model_tag.sys_language_uid in (-1, ###REC_FIELD_sys_language_uid###)',
+            'itemsProcFunc' => 'JVE\\JvEvents\\UserFunc\\Flexforms->TranslateMMvalues',
+            'foreign_table_where' => ' AND (tx_jvevents_domain_model_tag.sys_language_uid = 0 OR ( tx_jvevents_domain_model_tag.l10n_parent = 0 AND tx_jvevents_domain_model_tag.sys_language_uid in (-1, ###REC_FIELD_sys_language_uid###) )) ORDER BY tx_jvevents_domain_model_tag.name',
+            'MM' => 'tx_jvranking_question_tag_mm',
+            'size' => 10,
+            'autoSizeMax' => 30,
+            'maxitems' => 9999,
+            'multiple' => 0,
+            'fieldControl' => ['addRecord' => ['disabled' => false, 'options' => ['pid' => '###CURRENT_PID###', 'setValue' => 'prepend', 'icon' => 'actions-add', 'table' => 'tx_jvevents_domain_model_tag', 'title' => 'Create new']], 'editPopup' => ['disabled' => false, 'options' => ['icon' => 'actions-open', 'windowOpenParameters' => 'height=350,width=580,status=0,menubar=0,scrollbars=1', 'title' => 'Edit']]],
+        ]],
+        'access' => ['exclude' => 0, 'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.fe_group', 'config' => ['type' => 'select', 'renderType' => 'selectMultipleSideBySide', 'size' => 5, 'maxitems' => 1, 'items' => [['label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.any_login', 'value' => -2], ['label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.usergroups', 'value' => '--div--']], 'exclusiveKeys' => '-1,-2', 'foreign_table' => 'fe_groups', 'foreign_table_where' => 'ORDER BY fe_groups.title']],
 
-                // 'foreign_table_where' => ' AND tx_jvevents_domain_model_category.type = 0 AND tx_jvevents_domain_model_category.sys_language_uid in (-1, 0)',
-                'foreign_table_where' => ' AND tx_jvevents_domain_model_category.type = 0 AND (tx_jvevents_domain_model_category.sys_language_uid = 0 OR tx_jvevents_domain_model_category.l10n_parent = 0) ORDER BY tx_jvevents_domain_model_category.title',
-                'itemsProcFunc' => 'JVE\\JvEvents\\UserFunc\\Flexforms->TranslateMMvalues' ,
-
-                'MM' => 'tx_jvranking_question_category_mm',
-                'size' => 10,
-                'autoSizeMax' => 30,
-                'maxitems' => 9999,
-                'multiple' => 0,
-
-                'fieldControl' => array(
-                    'addRecord' => array(
-                        'disabled' => false ,
-                        'options' => array(
-                            'pid' => '###CURRENT_PID###' ,
-                            'setValue' => 'prepend' ,
-                            'icon' => 'actions-add',
-                            'table' => 'tx_jvevents_domain_model_category' ,
-                            'title' => 'Create new' ,
-                        ),
-
-                    ) ,
-                    'editPopup' => array(
-                        'disabled' => false ,
-                        'options' => array(
-                            'icon' => 'actions-open',
-                            'windowOpenParameters' => 'height=350,width=580,status=0,menubar=0,scrollbars=1' ,
-                            'title' => 'Edit' ,
-                        ),
-                    ) ,
-                ) ,
-
-            ),
-        ),
-        'tags' => array(
-            'exclude' => 0,
-            'label' => 'LLL:EXT:jv_events/Resources/Private/Language/locallang_db.xlf:tx_jvevents_domain_model_event.tags',
-            'config' => array(
-                'type' => 'select',
-                'renderType' => 'selectMultipleSideBySide',
-                'foreign_table' => 'tx_jvevents_domain_model_tag',
-                //'foreign_table_where' => ' AND tx_jvevents_domain_model_tag.sys_language_uid in (-1, ###REC_FIELD_sys_language_uid###)',
-                'itemsProcFunc' => 'JVE\\JvEvents\\UserFunc\\Flexforms->TranslateMMvalues' ,
-                'foreign_table_where' => ' AND (tx_jvevents_domain_model_tag.sys_language_uid = 0 OR ( tx_jvevents_domain_model_tag.l10n_parent = 0 AND tx_jvevents_domain_model_tag.sys_language_uid in (-1, ###REC_FIELD_sys_language_uid###) )) ORDER BY tx_jvevents_domain_model_tag.name',
-
-                'MM' => 'tx_jvranking_question_tag_mm',
-                'size' => 10,
-                'autoSizeMax' => 30,
-                'maxitems' => 9999,
-                'multiple' => 0,
-                'fieldControl' => array(
-                    'addRecord' => array(
-                        'disabled' => false ,
-                        'options' => array(
-                            'pid' => '###CURRENT_PID###' ,
-                            'setValue' => 'prepend' ,
-                            'icon' => 'actions-add',
-                            'table' => 'tx_jvevents_domain_model_tag' ,
-                            'title' => 'Create new' ,
-                        ),
-
-                    ) ,
-                    'editPopup' => array(
-                        'disabled' => false ,
-                        'options' => array(
-                            'icon' => 'actions-open',
-                            'windowOpenParameters' => 'height=350,width=580,status=0,menubar=0,scrollbars=1' ,
-                            'title' => 'Edit' ,
-                        ),
-                    ) ,
-                ) ,
-            ),
-        ),
-        'access' => array(
-            'exclude' => 0,
-            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.fe_group',
-            'config' => array(
-                'type' => 'select',
-                'renderType' => 'selectMultipleSideBySide',
-                'size' => 5,
-                'maxitems' => 1,
-                'items' => array(
-                    array(
-                        'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.any_login',
-                        -2
-                    ),
-                    array(
-                        'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.usergroups',
-                        '--div--'
-                    )
-                ),
-                'exclusiveKeys' => '-1,-2',
-                'foreign_table' => 'fe_groups',
-                'foreign_table_where' => 'ORDER BY fe_groups.title'
-            )
-        ),
-
-        'visible' => array(
-            'exclude' => 0,
-            'label' => 'Readonly, but visible if no access',
-            'config' => array(
-                'type' => 'check',
-                'default' => 0
-            )
-        ),
+        'visible' => ['exclude' => 0, 'label' => 'Readonly, but visible if no access', 'config' => ['type' => 'check', 'default' => 0]],
 
     ],
 ];
