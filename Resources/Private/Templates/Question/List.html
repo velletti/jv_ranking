@@ -90,8 +90,7 @@
 
 							</div>
 							<f:variable name="modalBody">
-								<f:format.nl2br>{question.description}
-								</f:format.nl2br>
+								<f:format.nl2br>{question.description}</f:format.nl2br>
 								<br>
 								<br>
 								<b>Hinweis:</b><br>Nach dem Speichern gültig für {question.validUntil} Tage
@@ -129,7 +128,13 @@
 					</div>
 				</f:then>
 				<f:else>
-					Organizer ID not set ?
+					<div class="alert alert-danger">
+						<f:if condition="{organizer.uid} < 1"><span class="fa fa-exclamation-triangle"></span> Organizer ID:  Not Set<br></f:if>
+						<f:if condition="{user.uid} < 1"><span class="fa fa-exclamation-triangle"></span> User ID: Not Set<br></f:if>
+						<f:if condition="{count} < 1"><span class="fa fa-exclamation-triangle"></span> Questions: Not found<br></f:if>
+						<f:if condition="{storagePID} < 1"><span class="fa fa-exclamation-triangle"></span> Storage PID:  Not Set<br></f:if>
+					</div>
+
 				</f:else>
 			</f:if>
 

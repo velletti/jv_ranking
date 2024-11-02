@@ -85,10 +85,8 @@ class QuestionController extends BaseController
     {
         $answers = null;
         $organizer = $this->getOrganizer();
-
+        $filter = [];
         if ($organizer) {
-
-    
             /** @var Typo3QuerySettings $querysettings */
             $querysettings = $this->questionRepository->getTYPO3QuerySettings();
             // toDo set storage Pid here
@@ -202,6 +200,7 @@ class QuestionController extends BaseController
             }
         }
         $this->view->assign('answers', $answers);
+        $this->view->assign('storagePID', $this->getStoragePid());
         $this->view->assign('changeableAnswers', $changeableAnswers);
         $this->view->assign('count', (is_countable($questions) ? count( $questions) : 0 ));
         $this->view->assign('questions', $questions);
