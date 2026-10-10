@@ -35,7 +35,7 @@ final class JVEJvRankingCTypeMigration extends AbstractListTypeToCTypeUpdate
     protected function getListTypeToCTypeMapping(): array
     {
         return [
-            // TODO: Add this mapping yourself!
+             'jvranking_pi1' => 'jvranking_pi1'
         ];
     }
 }
