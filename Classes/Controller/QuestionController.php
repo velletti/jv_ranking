@@ -58,18 +58,18 @@ class QuestionController extends BaseController
      *
      * @return void
      */
-    public function initializeAction()
+    public function initializeAction(): void
     {
         $this->questionRepository = GeneralUtility::makeInstance(QuestionRepository::class) ;
         $this->answerRepository = GeneralUtility::makeInstance(AnswerRepository::class) ;
     }
 
-    public function injectAnswerRepository(AnswerRepository $answerRepository)
+    public function injectAnswerRepository(AnswerRepository $answerRepository): void
     {
         $this->answerRepository = $answerRepository;
     }
 
-    public function injectQuestionRepository(QuestionRepository $questionRepository)
+    public function injectQuestionRepository(QuestionRepository $questionRepository): void
     {
         $this->questionRepository = $questionRepository;
     }
@@ -231,7 +231,7 @@ class QuestionController extends BaseController
      */
     public function deleteAction(Question $question)
     {
-        $this->addFlashMessage('The object was NOT  deleted. This action is actually not needed ', '', AbstractMessage::WARNING);
+        $this->addFlashMessage('The object was NOT  deleted. This action is actually not needed ', '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::WARNING);
         return $this->redirect('list');
     }
 
@@ -372,9 +372,9 @@ class QuestionController extends BaseController
 
         $debug .= "\n ***************************************************" ;
         $isVip = $this->hasUserGroup( 3 ) ;
-        $lastLogin =  $GLOBALS['TSFE']->fe_user->user['lastlogin'] ;
-        if( $GLOBALS['TSFE']->fe_user->user['is_online'] > $lastLogin ) {
-            $lastLogin =  $GLOBALS['TSFE']->fe_user->user['is_online'] ;
+        $lastLogin =  $this->request->getAttribute('frontend.user')->user['lastlogin'] ;
+        if( $this->request->getAttribute('frontend.user')->user['is_online'] > $lastLogin ) {
+            $lastLogin =  $this->request->getAttribute('frontend.user')->user['is_online'] ;
         }
 
         $result = RankingUtility::calculate($this->questionRepository, $organizer , $this->eventRepository , $this->answerRepository , $isVip , $lastLogin) ;
@@ -444,8 +444,8 @@ class QuestionController extends BaseController
 
         $this->sendDebugEmail('tango@velletti.de','info@tangomuenchen.de' ,'[Ranking] ' . $organizer->getUid() . " - " . $organizer->getEmail() , $debug ) ;
 
-        $this->addFlashMessage("Ranking settings updated! Deine neue Position in der Veranstalterliste ist in spätestens 24 Stunden aktiv." , "Success" , AbstractMessage::OK) ;
-        $this->addFlashMessage("Bisherige Position: ". $posOld . " Neue Position: " . $posNew . " " . $newGroupInfo  , "" , AbstractMessage::NOTICE) ;
+        $this->addFlashMessage("Ranking settings updated! Deine neue Position in der Veranstalterliste ist in spätestens 24 Stunden aktiv." , "Success" , \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK) ;
+        $this->addFlashMessage("Bisherige Position: ". $posOld . " Neue Position: " . $posNew . " " . $newGroupInfo  , "" , \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::NOTICE) ;
 
         return $this->redirect('list' , null , null, ["organizer" => $organizer->getUid()]);
     }

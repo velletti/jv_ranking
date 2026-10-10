@@ -25,8 +25,8 @@ class Question extends AbstractEntity
      * question
      *
      * @var string
-     * @Validate("NotEmpty")
      */
+    #[Validate(['validator' => 'NotEmpty'])]
     protected $question = '';
 
     /**
@@ -134,7 +134,7 @@ class Question extends AbstractEntity
      * @param string $question
      * @return void
      */
-    public function setQuestion($question)
+    public function setQuestion($question): void
     {
         $this->question = $question;
     }
@@ -155,7 +155,7 @@ class Question extends AbstractEntity
      * @param int $value
      * @return void
      */
-    public function setValue($value)
+    public function setValue($value): void
     {
         $this->value = $value;
     }
@@ -176,7 +176,7 @@ class Question extends AbstractEntity
      * @param string $description
      * @return void
      */
-    public function setDescription($description)
+    public function setDescription($description): void
     {
         $this->description = $description;
     }
@@ -192,7 +192,7 @@ class Question extends AbstractEntity
     /**
      * @param array $answer
      */
-    public function setAnswer($answer)
+    public function setAnswer($answer): void
     {
         $this->answer = $answer;
     }
@@ -209,7 +209,7 @@ class Question extends AbstractEntity
     /**
      * @param int $localizedUid
      */
-    public function setLocalizedUid($localizedUid)
+    public function setLocalizedUid($localizedUid): void
     {
         $this->_localizedUid = $localizedUid;
     }
@@ -225,7 +225,7 @@ class Question extends AbstractEntity
     /**
      * @param int $languageUid
      */
-    public function setLanguageUid($languageUid)
+    public function setLanguageUid($languageUid): void
     {
         $this->_languageUid = $languageUid;
     }
@@ -242,7 +242,7 @@ class Question extends AbstractEntity
     /**
      * @param int $hidden
      */
-    public function setHidden($hidden)
+    public function setHidden($hidden): void
     {
         $this->hidden = $hidden;
     }
@@ -258,7 +258,7 @@ class Question extends AbstractEntity
     /**
      * @param int $validUntil
      */
-    public function setValidUntil($validUntil)
+    public function setValidUntil($validUntil): void
     {
         $this->validUntil = $validUntil;
     }
@@ -274,7 +274,7 @@ class Question extends AbstractEntity
     /**
      * @param int $vaidUntil
      */
-    public function setVaidUntil($vaidUntil)
+    public function setVaidUntil($vaidUntil): void
     {
         $this->vaidUntil = $vaidUntil;
     }
@@ -295,7 +295,7 @@ class Question extends AbstractEntity
      * @param Category $eventCategory
      * @return void
      */
-    public function addEventCategory(Category $eventCategory)
+    public function addEventCategory(Category $eventCategory): void
     {
         $this->eventCategory->attach($eventCategory);
     }
@@ -306,7 +306,7 @@ class Question extends AbstractEntity
      * @param Category $eventCategoryToRemove The Category to be removed
      * @return void
      */
-    public function removeEventCategory(Category $eventCategoryToRemove)
+    public function removeEventCategory(Category $eventCategoryToRemove): void
     {
         $this->eventCategory->detach($eventCategoryToRemove);
     }
@@ -327,7 +327,7 @@ class Question extends AbstractEntity
      * @param ObjectStorage<Category> $eventCategory
      * @return void
      */
-    public function setEventCategory(ObjectStorage $eventCategory)
+    public function setEventCategory(ObjectStorage $eventCategory): void
     {
         $this->eventCategory = $eventCategory;
     }
@@ -338,7 +338,7 @@ class Question extends AbstractEntity
      * @param Tag $tag
      * @return void
      */
-    public function addTag(Tag $tag)
+    public function addTag(Tag $tag): void
     {
         $this->tags->attach($tag);
     }
@@ -349,7 +349,7 @@ class Question extends AbstractEntity
      * @param Tag $tagToRemove The Tag to be removed
      * @return void
      */
-    public function removeTag(Tag $tagToRemove)
+    public function removeTag(Tag $tagToRemove): void
     {
         $this->tags->detach($tagToRemove);
     }
@@ -370,7 +370,7 @@ class Question extends AbstractEntity
      * @param ObjectStorage<Tag> $tags
      * @return void
      */
-    public function setTags(ObjectStorage $tags)
+    public function setTags(ObjectStorage $tags): void
     {
         $this->tags = $tags;
     }
@@ -386,7 +386,7 @@ class Question extends AbstractEntity
     /**
      * @param string $access
      */
-    public function setAccess($access)
+    public function setAccess($access): void
     {
         $this->access = $access;
     }
@@ -402,7 +402,7 @@ class Question extends AbstractEntity
     /**
      * @param bool $visible
      */
-    public function setVisible($visible)
+    public function setVisible($visible): void
     {
         $this->visible = $visible;
     }

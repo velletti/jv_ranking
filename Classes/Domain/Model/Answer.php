@@ -22,8 +22,8 @@ class Answer extends AbstractEntity
      * answer
      *
      * @var int
-     * @Validate("NotEmpty")
      */
+    #[Validate(['validator' => 'NotEmpty'])]
     protected $answer = 0;
 
     /**
@@ -60,7 +60,7 @@ class Answer extends AbstractEntity
      *
      * @param int $answer
      */
-    public function setAnswer($answer)
+    public function setAnswer($answer): void
     {
         $this->answer = $answer;
     }
@@ -78,7 +78,7 @@ class Answer extends AbstractEntity
     /**
      * Sets the question
      */
-    public function setQuestion(Question $question)
+    public function setQuestion(Question $question): void
     {
         $this->question = $question;
     }
@@ -98,7 +98,7 @@ class Answer extends AbstractEntity
      *
      * @param int $organizerUid
      */
-    public function setOrganizerUid($organizerUid)
+    public function setOrganizerUid($organizerUid): void
     {
         $this->organizerUid = $organizerUid;
     }
@@ -114,7 +114,7 @@ class Answer extends AbstractEntity
     /**
      * @param int $starttime
      */
-    public function setStarttime($starttime)
+    public function setStarttime($starttime): void
     {
         $this->starttime = $starttime;
     }
